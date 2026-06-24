@@ -1,0 +1,11 @@
+volumes:
+  signoz-data: {}
+
+services:
+  signoz:
+    build: .
+    depends_on:
+      otel-collector-migrator: { condition: service_completed_successfully }
+    environment:
+      SIGNOZ_SQLSTORE_SQLITE_PATH: /var/lib/signoz/signoz.db
+    volumes: [signoz-data:/var/lib/signoz]

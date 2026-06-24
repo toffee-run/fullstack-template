@@ -25,5 +25,12 @@ services:
     depends_on: { <<: [*clickhouse-dep] }
     environment: { <<: [*clickhouse-env, *otel-collector-env] }
 
+  signoz:
+    depends_on:
+      otel-collector-migrator: { condition: service_completed_successfully }
+    environment:
+      SIGNOZ_TOKENIZER_JWT_SECRET: mysecret
+      <<: [*clickhouse-env]
+
   clickhouse:
     environment: { <<: [*clickhouse-env] }
