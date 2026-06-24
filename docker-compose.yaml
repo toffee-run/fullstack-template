@@ -1,2 +1,3 @@
 include:
   - clickhouse/compose.yaml
+  - otel-collector/compose.yaml

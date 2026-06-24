@@ -1,0 +1,109 @@
+connectors:
+  signozmeter:
+    metrics_flush_interval: 1h
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:${env:OTEL_COLLECTOR_GRPC}
+      http:
+        endpoint: 0.0.0.0:${env:OTEL_COLLECTOR_HTTP}
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+    path: /health
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    spike_limit_mib: 512
+    limit_mib: 2048
+
+  batch:
+    timeout: 1s
+    send_batch_size: 128
+    send_batch_max_size: 256
+
+  resourcedetection:
+    detectors: ["system"]
+    system:
+      hostname_sources: ["os"]
+
+  signozspanmetrics:
+    metrics_exporter: signozclickhousemetrics
+    metrics_flush_interval: 60s
+    latency_histogram_buckets:
+      - 100us
+      - 1ms
+      - 2ms
+      - 6ms
+      - 10ms
+      - 50ms
+      - 100ms
+      - 250ms
+      - 500ms
+      - 1000ms
+      - 1400ms
+      - 2000ms
+      - 5s
+      - 10s
+      - 20s
+      - 40s
+      - 60s
+    aggregation_temporality: AGGREGATION_TEMPORALITY_DELTA
+    enable_exp_histogram: true
+
+exporters:
+  clickhousetraces:
+    datasource: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_traces
+    low_cardinal_exception_grouping: false
+    use_new_schema: true
+
+  signozclickhousemetrics:
+    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_metrics
+
+  clickhouselogsexporter:
+    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_logs
+    timeout: 10s
+    use_new_schema: true
+
+  signozclickhousemeter:
+    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_meter
+    timeout: 45s
+    sending_queue:
+      enabled: false
+
+  metadataexporter:
+    cache:
+      provider: in_memory
+    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_metadata
+    enabled: true
+    timeout: 45s
+
+  debug:
+    verbosity: detailed
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection, signozspanmetrics]
+      exporters: [clickhousetraces, metadataexporter, signozmeter]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [signozclickhousemetrics, metadataexporter, signozmeter]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resourcedetection]
+      exporters: [clickhouselogsexporter, metadataexporter, signozmeter]
+
+    metrics/meter:
+      receivers: [signozmeter]
+      processors: [memory_limiter, batch]
+      exporters: [signozclickhousemeter]

@@ -1,5 +1,13 @@
+x-otel-collector-dep: &otel-collector-dep
+  otel-collector: { condition: service_healthy }
+
 x-clickhouse-dep: &clickhouse-dep
   clickhouse: { condition: service_healthy }
+
+x-otel-collector-env: &otel-collector-env
+  OTEL_COLLECTOR_HOST: otel-collector
+  OTEL_COLLECTOR_GRPC: 4317
+  OTEL_COLLECTOR_HTTP: 4318
 
 x-clickhouse-env: &clickhouse-env
   CLICKHOUSE_USER: myuser
@@ -9,5 +17,13 @@ x-clickhouse-env: &clickhouse-env
   CLICKHOUSE_PATH: mydatabase
 
 services:
+  otel-collector-migrator:
+    depends_on: { <<: [*clickhouse-dep] }
+    environment: { <<: [*clickhouse-env] }
+
+  otel-collector:
+    depends_on: { <<: [*clickhouse-dep] }
+    environment: { <<: [*clickhouse-env, *otel-collector-env] }
+
   clickhouse:
     environment: { <<: [*clickhouse-env] }
