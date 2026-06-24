@@ -1,0 +1,11 @@
+volumes:
+  clickhouse-data: {}
+
+services:
+  clickhouse:
+    build: .
+    environment:
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./cluster.xml:/etc/clickhouse-server/config.d/cluster.xml:ro

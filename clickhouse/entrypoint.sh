@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eux
+
+export CLICKHOUSE_PASSWORD=$CLICKHOUSE_PASS
+export CLICKHOUSE_DB=$CLICKHOUSE_PATH
+
+exec "$@"

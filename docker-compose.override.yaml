@@ -1,0 +1,13 @@
+x-clickhouse-dep: &clickhouse-dep
+  clickhouse: { condition: service_healthy }
+
+x-clickhouse-env: &clickhouse-env
+  CLICKHOUSE_USER: myuser
+  CLICKHOUSE_PASS: mypass
+  CLICKHOUSE_HOST: clickhouse
+  CLICKHOUSE_PORT: 9000
+  CLICKHOUSE_PATH: mydatabase
+
+services:
+  clickhouse:
+    environment: { <<: [*clickhouse-env] }
