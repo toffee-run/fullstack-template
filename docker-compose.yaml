@@ -2,8 +2,12 @@ include:
   - clickhouse/compose.yaml
   - otel-collector/compose.yaml
   - signoz/compose.yaml
+  - traefik/compose.yaml
 
 services:
+  traefik:
+    ports: [8000:8000, 4433:4433]
+
   frontend:
     build: ./frontend
 

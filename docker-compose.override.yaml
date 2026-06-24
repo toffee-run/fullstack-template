@@ -24,6 +24,10 @@ x-clickhouse-env: &clickhouse-env
   CLICKHOUSE_PATH: mydatabase
 
 services:
+  traefik:
+    depends_on: { <<: [*frontend-dep, *otel-collector-dep] }
+    environment: { <<: [*frontend-env, *otel-collector-env] }
+
   frontend:
     depends_on: { <<: [*otel-collector-dep] }
     environment: { <<: [*frontend-env, *otel-collector-env] }

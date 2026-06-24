@@ -1,0 +1,52 @@
+experimental:
+  otlpLogs: true
+global:
+  checkNewVersion: false
+api:
+  dashboard: false
+
+entryPoints:
+  web:
+    address: ":8000"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":4433"
+    http3:
+      advertisedPort: 4433
+
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
+metrics:
+  otlp:
+    grpc:
+      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      insecure: true
+    addRoutersLabels: true
+    pushInterval: 1s
+
+log:
+  level: INFO
+  otlp:
+    grpc:
+      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      insecure: true
+
+accessLog:
+  otlp:
+    grpc:
+      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      insecure: true
+
+tracing:
+  otlp:
+    grpc:
+      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      insecure: true

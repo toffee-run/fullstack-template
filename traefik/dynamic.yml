@@ -1,0 +1,15 @@
+http:
+  routers:
+    frontend:
+      entryPoints:
+        - websecure
+      rule: "PathPrefix(`/`)"
+      priority: 1
+      service: frontend-svc
+      tls: {}
+  services:
+    frontend-svc:
+      loadBalancer:
+        servers:
+          - url: 'http://{{ env "FRONTEND_HOST" }}:{{ env "FRONTEND_PORT" }}'
+        passHostHeader: true

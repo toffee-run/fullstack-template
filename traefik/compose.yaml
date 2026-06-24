@@ -1,0 +1,6 @@
+services:
+  traefik:
+    build: .
+    volumes:
+      - ./template.yml:/etc/traefik/template.yml:ro
+      - ./dynamic.yml:/etc/traefik/dynamic.yml:ro
