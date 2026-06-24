@@ -4,5 +4,8 @@ include:
   - signoz/compose.yaml
 
 services:
+  frontend:
+    build: ./frontend
+
   signoz:
     ports: [8080:8080]

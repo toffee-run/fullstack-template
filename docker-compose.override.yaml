@@ -1,8 +1,15 @@
+x-frontend-dep: &frontend-dep
+  frontend: { condition: service_healthy }
+
 x-otel-collector-dep: &otel-collector-dep
   otel-collector: { condition: service_healthy }
 
 x-clickhouse-dep: &clickhouse-dep
   clickhouse: { condition: service_healthy }
+
+x-frontend-env: &frontend-env
+  FRONTEND_HOST: frontend
+  FRONTEND_PORT: 3000
 
 x-otel-collector-env: &otel-collector-env
   OTEL_COLLECTOR_HOST: otel-collector
@@ -17,6 +24,10 @@ x-clickhouse-env: &clickhouse-env
   CLICKHOUSE_PATH: mydatabase
 
 services:
+  frontend:
+    depends_on: { <<: [*otel-collector-dep] }
+    environment: { <<: [*frontend-env, *otel-collector-env] }
+
   otel-collector-migrator:
     depends_on: { <<: [*clickhouse-dep] }
     environment: { <<: [*clickhouse-env] }
