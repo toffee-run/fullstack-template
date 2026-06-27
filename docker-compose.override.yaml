@@ -1,3 +1,6 @@
+x-restart: &restart
+  restart: unless-stopped
+
 x-frontend-dep: &frontend-dep
   frontend: { condition: service_healthy }
 
@@ -7,45 +10,33 @@ x-otel-collector-dep: &otel-collector-dep
 x-clickhouse-dep: &clickhouse-dep
   clickhouse: { condition: service_healthy }
 
-x-frontend-env: &frontend-env
-  FRONTEND_HOST: frontend
-  FRONTEND_PORT: 3000
-
-x-otel-collector-env: &otel-collector-env
-  OTEL_COLLECTOR_HOST: otel-collector
-  OTEL_COLLECTOR_GRPC: 4317
-  OTEL_COLLECTOR_HTTP: 4318
-
-x-clickhouse-env: &clickhouse-env
-  CLICKHOUSE_USER: myuser
-  CLICKHOUSE_PASS: mypass
-  CLICKHOUSE_HOST: clickhouse
-  CLICKHOUSE_PORT: 9000
-  CLICKHOUSE_PATH: mydatabase
-
 services:
   traefik:
+    <<: *restart
     depends_on: { <<: [*frontend-dep, *otel-collector-dep] }
-    environment: { <<: [*frontend-env, *otel-collector-env] }
+    env_file: [./.env/.frontend, ./.env/.otel-collector]
 
   frontend:
+    <<: *restart
     depends_on: { <<: [*otel-collector-dep] }
-    environment: { <<: [*frontend-env, *otel-collector-env] }
+    env_file: [./.env/.frontend, ./.env/.otel-collector]
 
   otel-collector-migrator:
+    restart: on-failure
     depends_on: { <<: [*clickhouse-dep] }
-    environment: { <<: [*clickhouse-env] }
+    env_file: [./.env/.clickhouse]
 
   otel-collector:
+    <<: *restart
     depends_on: { <<: [*clickhouse-dep] }
-    environment: { <<: [*clickhouse-env, *otel-collector-env] }
+    env_file: [./.env/.clickhouse, ./.env/.otel-collector]
 
   signoz:
+    <<: *restart
     depends_on:
       otel-collector-migrator: { condition: service_completed_successfully }
-    environment:
-      SIGNOZ_TOKENIZER_JWT_SECRET: mysecret
-      <<: [*clickhouse-env]
+    env_file: [./.env/.clickhouse, ./.env/.signoz]
 
   clickhouse:
-    environment: { <<: [*clickhouse-env] }
+    <<: *restart
+    env_file: [./.env/.clickhouse]
