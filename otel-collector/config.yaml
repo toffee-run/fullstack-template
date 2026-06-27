@@ -31,6 +31,13 @@ processors:
     system:
       hostname_sources: ["os"]
 
+  transform:
+    log_statements:
+      - context: log
+        statements:
+          - merge_maps(attributes, ParseJSON(body), "upsert") where IsMatch(body, "^\\{")
+          - set(attributes["log.type"], "plaintext") where not IsMatch(body, "^\\{")
+
   signozspanmetrics:
     metrics_exporter: signozclickhousemetrics
     metrics_flush_interval: 60s
@@ -100,7 +107,7 @@ service:
 
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch, resourcedetection]
+      processors: [transform, memory_limiter, batch, resourcedetection]
       exporters: [clickhouselogsexporter, metadataexporter, signozmeter]
 
     metrics/meter:
