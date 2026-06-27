@@ -13,7 +13,7 @@ RUN set -eux; \
     rm $FILE_NAME;
 COPY histogramQuantile.xml /etc/clickhouse-server/
 
-HEALTHCHECK --interval=5s --timeout=2s --start-period=3s --retries=3 \
+HEALTHCHECK --interval=5s --timeout=2s --start-period=4s --retries=3 \
     CMD ["wget", "--spider", "-q", "http://localhost:8123/ping"]
 
 COPY entrypoint.sh /usr/local/bin/entrypoint
