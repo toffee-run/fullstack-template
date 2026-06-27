@@ -1,13 +1,14 @@
-experimental:
-  otlpLogs: true
-global:
-  checkNewVersion: false
 api:
   dashboard: false
 
+providers:
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+
 entryPoints:
   web:
-    address: ":8000"
+    address: ":80"
     http:
       redirections:
         entryPoint:
@@ -15,14 +16,12 @@ entryPoints:
           scheme: https
           permanent: true
   websecure:
-    address: ":4433"
+    address: ":443"
     http3:
-      advertisedPort: 4433
+      advertisedPort: 443
 
-providers:
-  file:
-    filename: /etc/traefik/dynamic.yml
-    watch: true
+experimental:
+  otlpLogs: true
 
 metrics:
   otlp:
