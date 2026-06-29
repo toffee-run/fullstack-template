@@ -16,20 +16,18 @@ extensions:
     path: /health
 
 processors:
+  resourcedetection:
+    detectors: [env, system]
+
   memory_limiter:
     check_interval: 1s
     spike_limit_mib: 512
-    limit_mib: 2048
+    limit_mib: 1024
 
   batch:
-    timeout: 1s
-    send_batch_size: 128
-    send_batch_max_size: 256
-
-  resourcedetection:
-    detectors: ["system"]
-    system:
-      hostname_sources: ["os"]
+    timeout: 500ms
+    send_batch_size: 512
+    send_batch_max_size: 1024
 
   transform:
     log_statements:
@@ -63,31 +61,47 @@ processors:
     enable_exp_histogram: true
 
 exporters:
+  signozclickhousemetrics:
+    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_metrics
+    timeout: 5s
+    sending_queue:
+      enabled: true
+      num_consumers: 8
+      queue_size: 5000
+
+  clickhouselogsexporter:
+    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_logs
+    use_new_schema: true
+    timeout: 5s
+    sending_queue:
+      enabled: true
+      num_consumers: 8
+      queue_size: 5000
+
   clickhousetraces:
     datasource: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_traces
     low_cardinal_exception_grouping: false
     use_new_schema: true
-
-  signozclickhousemetrics:
-    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_metrics
-
-  clickhouselogsexporter:
-    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_logs
-    timeout: 10s
-    use_new_schema: true
+    timeout: 5s
+    sending_queue:
+      enabled: true
+      num_consumers: 8
+      queue_size: 5000
 
   signozclickhousemeter:
     dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_meter
-    timeout: 45s
+    timeout: 5s
     sending_queue:
-      enabled: false
+      enabled: true
+      num_consumers: 8
+      queue_size: 5000
 
   metadataexporter:
+    enabled: true
+    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_metadata
+    timeout: 5s
     cache:
       provider: in_memory
-    dsn: ${env:SIGNOZ_OTEL_COLLECTOR_CLICKHOUSE_DSN}/signoz_metadata
-    enabled: true
-    timeout: 45s
 
   debug:
     verbosity: detailed
@@ -97,20 +111,20 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch, resourcedetection, signozspanmetrics]
+      processors: [resourcedetection, memory_limiter, batch, signozspanmetrics]
       exporters: [clickhousetraces, metadataexporter, signozmeter]
 
     metrics:
       receivers: [otlp]
-      processors: [memory_limiter, batch, resourcedetection]
+      processors: [resourcedetection, memory_limiter, batch]
       exporters: [signozclickhousemetrics, metadataexporter, signozmeter]
 
     logs:
       receivers: [otlp]
-      processors: [transform, memory_limiter, batch, resourcedetection]
+      processors: [transform, resourcedetection, memory_limiter, batch]
       exporters: [clickhouselogsexporter, metadataexporter, signozmeter]
 
     metrics/meter:
       receivers: [signozmeter]
-      processors: [memory_limiter, batch]
+      processors: [resourcedetection, memory_limiter, batch]
       exporters: [signozclickhousemeter]

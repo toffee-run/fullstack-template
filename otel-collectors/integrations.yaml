@@ -1,0 +1,38 @@
+receivers:
+  prometheus:
+    config:
+      global:
+        scrape_interval: 3s
+      scrape_configs:
+        - job_name: clickhouse
+          static_configs:
+            - targets:
+                - ${env:CLICKHOUSE_HOST}:9363
+          metrics_path: /metrics
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+    path: /health
+
+processors:
+  resourcedetection:
+    detectors: [env, system]
+
+  batch:
+    timeout: 200ms
+    send_batch_size: 100
+    send_batch_max_size: 200
+
+exporters:
+  otlp:
+    endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_GRPC}
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [resourcedetection, batch]
+      exporters: [otlp]

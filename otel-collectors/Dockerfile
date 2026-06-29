@@ -15,6 +15,6 @@ COPY entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
 ENTRYPOINT [ "entrypoint" ]
 
-USER 10001
+USER 1001
 
 CMD [ "/signoz-otel-collector", "--config", "/etc/otel/config.yaml" ]
