@@ -1,0 +1,63 @@
+receivers:
+  hostmetrics:
+    root_path: /hostfs
+    collection_interval: 60s
+    scrapers:
+      cpu: {}
+      disk: {}
+      load: {}
+      filesystem: {}
+      memory: {}
+      network: {}
+      paging: {}
+      process:
+        mute_process_name_error: true
+        mute_process_exe_error: true
+        mute_process_io_error: true
+        mute_process_user_error: true
+      processes: {}
+      system: {}
+
+  docker_stats:
+    endpoint: unix:///var/run/docker.sock
+    metrics:
+      container.cpu.utilization:
+        enabled: true
+      container.memory.percent:
+        enabled: true
+      container.network.io.usage.rx_bytes:
+        enabled: true
+      container.network.io.usage.tx_bytes:
+        enabled: true
+      container.network.io.usage.rx_dropped:
+        enabled: true
+      container.network.io.usage.tx_dropped:
+        enabled: true
+      container.memory.usage.limit:
+        enabled: true
+      container.memory.usage.total:
+        enabled: true
+      container.blockio.io_service_bytes_recursive:
+        enabled: true
+
+processors:
+  resourcedetection:
+    detectors: [env, system, docker]
+
+  batch:
+    timeout: 200ms
+    send_batch_size: 100
+    send_batch_max_size: 200
+
+exporters:
+  otlp:
+    endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_GRPC}
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics, docker_stats]
+      processors: [resourcedetection, batch]
+      exporters: [otlp]
