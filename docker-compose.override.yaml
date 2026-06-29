@@ -4,8 +4,8 @@ x-restart: &restart
 x-frontend-dep: &frontend-dep
   frontend: { condition: service_healthy }
 
-x-otel-collector-dep: &otel-collector-dep
-  otel-collector: { condition: service_healthy }
+x-otel-services-dep: &otel-services-dep
+  otel-services: { condition: service_healthy }
 
 x-clickhouse-dep: &clickhouse-dep
   clickhouse: { condition: service_healthy }
@@ -13,20 +13,28 @@ x-clickhouse-dep: &clickhouse-dep
 services:
   traefik:
     <<: *restart
-    depends_on: { <<: [*frontend-dep, *otel-collector-dep] }
+    depends_on: { <<: [*frontend-dep, *otel-services-dep] }
     env_file: [./.env/.frontend, ./.env/.otel-collector]
 
   frontend:
     <<: *restart
-    depends_on: { <<: [*otel-collector-dep] }
+    depends_on: { <<: [*otel-services-dep] }
     env_file: [./.env/.frontend, ./.env/.otel-collector]
 
-  otel-collector-migrator:
-    restart: on-failure
+  otel-migrator:
     depends_on: { <<: [*clickhouse-dep] }
     env_file: [./.env/.clickhouse]
 
-  otel-collector:
+  otel-host:
+    <<: *restart
+    env_file: [./.env/.otel-collector]
+
+  otel-integrations:
+    <<: *restart
+    depends_on: { <<: [*clickhouse-dep] }
+    env_file: [./.env/.clickhouse, ./.env/.otel-collector]
+
+  otel-services:
     <<: *restart
     depends_on: { <<: [*clickhouse-dep] }
     env_file: [./.env/.clickhouse, ./.env/.otel-collector]
@@ -34,9 +42,12 @@ services:
   signoz:
     <<: *restart
     depends_on:
-      otel-collector-migrator: { condition: service_completed_successfully }
+      otel-migrator: { condition: service_completed_successfully }
+    env_file: [./.env/.clickhouse, ./.env/.signoz]
+
+  signoz-bootstrap:
     env_file: [./.env/.clickhouse, ./.env/.signoz]
 
   clickhouse:
     <<: *restart
-    env_file: [./.env/.clickhouse]
+    env_file: [./.env/.clickhouse, ./.env/.otel-collector]
