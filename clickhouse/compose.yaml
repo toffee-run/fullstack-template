@@ -9,3 +9,4 @@ services:
     volumes:
       - clickhouse-data:/var/lib/clickhouse
       - ./cluster.xml:/etc/clickhouse-server/config.d/cluster.xml:ro
+      - ./prometheus.xml:/etc/clickhouse-server/config.d/prometheus.xml:ro

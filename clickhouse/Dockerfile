@@ -15,9 +15,3 @@ COPY histogramQuantile.xml /etc/clickhouse-server/
 
 HEALTHCHECK --interval=5s --timeout=2s --start-period=4s --retries=3 \
     CMD ["wget", "--spider", "-q", "http://localhost:8123/ping"]
-
-COPY entrypoint.sh /usr/local/bin/entrypoint
-RUN chmod +x /usr/local/bin/entrypoint
-ENTRYPOINT [ "entrypoint" ]
-
-CMD ["/entrypoint.sh"]
