@@ -1,15 +1,21 @@
 include:
   - clickhouse/compose.yaml
+  - kratos/compose.yaml
   - otel-collectors/compose.yaml
+  - postgres/compose.yaml
   - signoz/compose.yaml
   - traefik/compose.yaml
 
 services:
   traefik:
-    ports: [8000:80, 4433:443, 4433:443/udp]
+    ports: [8000:80, 4443:4443, 4443:4443/udp]
 
   frontend:
     build: ./frontend
 
   signoz:
     ports: [8080:8080]
+
+  mailpit:
+    image: axllent/mailpit
+    ports: [8025:8025]

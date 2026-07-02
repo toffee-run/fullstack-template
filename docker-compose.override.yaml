@@ -1,8 +1,20 @@
-x-restart: &restart
+x-restart-unless: &restart-unless
   restart: unless-stopped
+
+x-restart-failure: &restart-failure
+  restart: on-failure
 
 x-frontend-dep: &frontend-dep
   frontend: { condition: service_healthy }
+
+x-kratos-dep: &kratos-dep
+  kratos: { condition: service_healthy }
+
+x-postgres-dep: &postgres-dep
+  postgres: { condition: service_healthy }
+
+x-mailpit-dep: &mailpit-dep
+  mailpit: { condition: service_healthy }
 
 x-otel-services-dep: &otel-services-dep
   otel-services: { condition: service_healthy }
@@ -12,42 +24,99 @@ x-clickhouse-dep: &clickhouse-dep
 
 services:
   traefik:
-    <<: *restart
-    depends_on: { <<: [*frontend-dep, *otel-services-dep] }
-    env_file: [./.env/.frontend, ./.env/.otel-collector]
+    <<: *restart-unless
+    depends_on:
+      <<:
+        - *frontend-dep
+        - *kratos-dep
+        - *otel-services-dep
+    env_file:
+      - ./.env/traefik.env
+      - ./.env/frontend.env
+      - ./.env/otel-collector.env
+      - ./.env/kratos.env
 
   frontend:
-    <<: *restart
-    depends_on: { <<: [*otel-services-dep] }
-    env_file: [./.env/.frontend, ./.env/.otel-collector]
+    <<: *restart-unless
+    depends_on:
+      <<:
+        - *otel-services-dep
+    env_file:
+      - ./.env/frontend.env
+      - ./.env/otel-collector.env
 
-  otel-migrator:
-    depends_on: { <<: [*clickhouse-dep] }
-    env_file: [./.env/.clickhouse]
+  kratos:
+    <<: *restart-unless
+    depends_on:
+      <<:
+        - *postgres-dep
+        - *mailpit-dep
+    env_file:
+      - ./.env/kratos.env
+      - ./.env/traefik.env
+      - ./.env/otel-collector.env
+      - ./.env/postgres.env
+      - ./.env/smtp.env
 
-  otel-host:
-    <<: *restart
-    env_file: [./.env/.otel-collector]
-
-  otel-integrations:
-    <<: *restart
-    depends_on: { <<: [*clickhouse-dep] }
-    env_file: [./.env/.clickhouse, ./.env/.otel-collector]
+  postgres:
+    <<: *restart-unless
+    env_file:
+      - ./.env/postgres.env
+      - ./.env/kratos.env
 
   otel-services:
-    <<: *restart
-    depends_on: { <<: [*clickhouse-dep] }
-    env_file: [./.env/.clickhouse, ./.env/.otel-collector]
-
-  signoz:
-    <<: *restart
+    <<: *restart-unless
     depends_on:
-      otel-migrator: { condition: service_completed_successfully }
-    env_file: [./.env/.clickhouse, ./.env/.signoz]
+      <<:
+        - *clickhouse-dep
+    env_file:
+      - ./.env/otel-collector.env
+      - ./.env/clickhouse.env
 
-  signoz-bootstrap:
-    env_file: [./.env/.clickhouse, ./.env/.signoz]
+  otel-migrator:
+    <<: *restart-failure
+    depends_on:
+      <<:
+        - *clickhouse-dep
+    env_file:
+      - ./.env/clickhouse.env
+
+  otel-host:
+    <<: *restart-unless
+    env_file:
+      - ./.env/otel-collector.env
+
+  otel-integrations:
+    <<: *restart-unless
+    depends_on:
+      <<:
+        - *kratos-dep
+        - *postgres-dep
+        - *clickhouse-dep
+    env_file:
+      - ./.env/otel-collector.env
+      - ./.env/kratos.env
+      - ./.env/postgres.env
+      - ./.env/clickhouse.env
 
   clickhouse:
-    <<: *restart
-    env_file: [./.env/.clickhouse, ./.env/.otel-collector]
+    <<: *restart-unless
+    env_file:
+      - ./.env/otel-collector.env
+      - ./.env/clickhouse.env
+
+  signoz-bootstrap:
+    env_file:
+      - ./.env/clickhouse.env
+      - ./.env/signoz.env
+
+  signoz:
+    <<: *restart-unless
+    depends_on:
+      otel-migrator: { condition: service_completed_successfully }
+    env_file:
+      - ./.env/clickhouse.env
+      - ./.env/signoz.env
+
+  mailpit:
+    <<: *restart-unless
