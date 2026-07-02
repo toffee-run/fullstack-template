@@ -1,0 +1,7 @@
+services:
+  kratos:
+    build: .
+    volumes:
+      - ./kratos.yaml:/etc/kratos/config/kratos.yaml:ro
+      - ./identity.schema.json:/etc/kratos/config/identity.schema.json:ro
+    command: serve -c /etc/kratos/config/kratos.yaml --watch-courier

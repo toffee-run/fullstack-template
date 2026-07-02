@@ -1,0 +1,42 @@
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/kratos/config/identity.schema.json
+
+serve:
+  admin:
+    host: 0.0.0.0
+
+selfservice:
+  methods:
+    password:
+      enabled: true
+    code:
+      enabled: true
+  flows:
+    recovery:
+      enabled: true
+      use: code
+
+    verification:
+      enabled: true
+      use: code
+
+    registration:
+      after:
+        password:
+          hooks:
+            - hook: show_verification_ui
+
+courier:
+  smtp:
+    from_address: no_reply@abc.com
+    from_name: Auth Service
+
+tracing:
+  provider: otel
+  service_name: kratos
+  providers:
+    otlp:
+      insecure: true
