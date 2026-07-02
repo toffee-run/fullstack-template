@@ -1,0 +1,6 @@
+PGHOST= PGHOSTADDR= psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --no-password --no-psqlrc --dbname "$POSTGRES_DB" <<-EOSQL
+GRANT pg_monitor TO $POSTGRES_USER;
+GRANT SELECT ON pg_stat_database TO $POSTGRES_USER;
+
+CREATE DATABASE $KRATOS_DB;
+EOSQL
