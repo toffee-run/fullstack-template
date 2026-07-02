@@ -33,7 +33,7 @@ const sdk = new NodeSDK({
   instrumentations: [
     getNodeAutoInstrumentations({
       "@opentelemetry/instrumentation-http": {
-        ignoreIncomingRequestHook: (req) => req.url === "/api/health",
+        ignoreIncomingRequestHook: (req) => req.url === "/health",
       },
     }),
   ],
