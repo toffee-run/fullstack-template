@@ -1,15 +1,7 @@
-x-signoz-otel-image: &signoz-otel-image
-  build: .
-
-x-otel-image: &otel-image
-  image: otel/opentelemetry-collector-contrib:0.155.0
-
-x-otel-services-dep: &otel-services-dep
-  otel-services: { condition: service_healthy }
-
 services:
   otel-migrator:
-    <<: *signoz-otel-image
+    <<: &signoz-otel-image
+      build: .
     restart: on-failure
     command:
       - /bin/sh
@@ -21,9 +13,11 @@ services:
         /signoz-otel-collector migrate async up
 
   otel-host:
-    <<: *otel-image
+    <<: &otel-image
+      image: otel/opentelemetry-collector-contrib:0.155.0
     user: "0:0"
-    depends_on: { <<: [*otel-services-dep] }
+    depends_on: &otel-services-dep
+      otel-services: { condition: service_healthy }
     volumes:
       - ./host.yaml:/etc/otelcol-contrib/config.yaml:ro
       - ${XDG_RUNTIME_DIR:-/var/run}/docker.sock:/var/run/docker.sock:ro
@@ -33,7 +27,7 @@ services:
 
   otel-integrations:
     <<: *otel-image
-    depends_on: { <<: [*otel-services-dep] }
+    depends_on: *otel-services-dep
     volumes: [./integrations.yaml:/etc/otelcol-contrib/config.yaml:ro]
 
   otel-services:

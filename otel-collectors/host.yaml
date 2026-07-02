@@ -20,6 +20,7 @@ receivers:
 
   docker_stats:
     endpoint: unix:///var/run/docker.sock
+    collection_interval: 15s
     metrics:
       container.cpu.utilization:
         enabled: true
@@ -45,9 +46,9 @@ processors:
     detectors: [env, system, docker]
 
   batch:
-    timeout: 200ms
-    send_batch_size: 100
-    send_batch_max_size: 200
+    timeout: 1s
+    send_batch_size: 250
+    send_batch_max_size: 500
 
 exporters:
   otlp:
