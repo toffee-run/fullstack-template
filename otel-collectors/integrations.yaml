@@ -2,13 +2,35 @@ receivers:
   prometheus:
     config:
       global:
-        scrape_interval: 3s
+        scrape_interval: 15s
       scrape_configs:
         - job_name: clickhouse
           static_configs:
             - targets:
                 - ${env:CLICKHOUSE_HOST}:9363
           metrics_path: /metrics
+
+        - job_name: kratos
+          static_configs:
+            - targets:
+                - ${env:KRATOS_HOST}:${env:KRATOS_ADMIN_PORT}
+          metrics_path: /metrics/prometheus
+
+  postgresql:
+    endpoint: ${env:POSTGRES_HOST}:${env:POSTGRES_PORT}
+    collection_interval: 15s
+    username: ${env:POSTGRES_USER}
+    password: ${env:POSTGRES_PASSWORD}
+    databases: []
+    tls:
+      insecure: true
+    metrics:
+      postgresql.database.locks:
+        enabled: true
+      postgresql.deadlocks:
+        enabled: true
+      postgresql.sequential_scans:
+        enabled: true
 
 extensions:
   health_check:
@@ -20,9 +42,9 @@ processors:
     detectors: [env, system]
 
   batch:
-    timeout: 200ms
-    send_batch_size: 100
-    send_batch_max_size: 200
+    timeout: 1s
+    send_batch_size: 250
+    send_batch_max_size: 500
 
 exporters:
   otlp:
@@ -33,6 +55,6 @@ exporters:
 service:
   pipelines:
     metrics:
-      receivers: [prometheus]
+      receivers: [prometheus, postgresql]
       processors: [resourcedetection, batch]
       exporters: [otlp]
