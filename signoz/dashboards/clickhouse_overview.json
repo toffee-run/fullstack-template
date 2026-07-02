@@ -1,6 +1,6 @@
 {
-  "description": "This dashboard provides a high-level overview of your Clickhouse Server hosts.",
   "id": "clickhouse-overview",
+  "description": "This dashboard provides a high-level overview of your Clickhouse Server hosts.",
   "layout": [
     {
       "h": 3,
@@ -113,8 +113,6 @@
   ],
   "tags": [],
   "title": "Clickhouse Overview",
-  "uploadedGrafana": false,
-  "uuid": "e74aeb83-ac4b-4313-8a97-216b62c8fc59",
   "variables": {
     "eaf65de3-20bb-4dbc-9792-32a445f7be8f": {
       "allSelected": false,
@@ -124,7 +122,7 @@
       "key": "eaf65de3-20bb-4dbc-9792-32a445f7be8f",
       "modificationUUID": "2fbb477e-7775-427b-ab14-29b673dd216c",
       "multiSelect": false,
-      "name": "host_name",
+      "name": "host.name",
       "order": 0,
       "queryValue": "SELECT JSONExtractString(labels, 'host.name') AS `host.name`\nFROM signoz_metrics.distributed_time_series_v4_1day\nWHERE metric_name = 'ClickHouseMetrics_VersionInteger' and __normalized=false \nGROUP BY `host.name`",
       "selectedValue": "",
@@ -134,6 +132,7 @@
       "type": "QUERY"
     }
   },
+  "uploadedGrafana": false,
   "version": "v5",
   "widgets": [
     {
@@ -148,21 +147,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_Query",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -181,24 +168,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_SelectQuery",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_Query",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -217,24 +204,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_InsertQuery",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_SelectQuery",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "C",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -253,24 +240,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "C",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_AsyncInsertQuery",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_InsertQuery",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "D",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -289,7 +276,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "D",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_AsyncInsertQuery",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -386,21 +385,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_FailedQuery",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -410,24 +397,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_FailedSelectQuery",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_FailedQuery",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -437,24 +424,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_FailedInsertQuery",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_FailedSelectQuery",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "C",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -464,24 +451,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "C",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_FailedAsyncInsertQuery",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_FailedInsertQuery",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "D",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -491,7 +478,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "D",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_FailedAsyncInsertQuery",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -588,21 +587,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_InsertedRows",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -612,7 +599,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_InsertedRows",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -709,21 +708,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_QueryTimeMicroseconds",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -733,24 +720,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_SelectQueryTimeMicroseconds",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_QueryTimeMicroseconds",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -760,24 +747,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_InsertQueryTimeMicroseconds",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_SelectQueryTimeMicroseconds",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "C",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -787,24 +774,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "C",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_OtherQueryTimeMicroseconds",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_InsertQueryTimeMicroseconds",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "D",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -814,7 +801,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "D",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_OtherQueryTimeMicroseconds",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -911,21 +910,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_RejectedInserts",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -935,24 +922,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_RejectedMutations",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_RejectedInserts",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -962,7 +949,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_RejectedMutations",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1059,21 +1058,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseMetrics_MemoryTracking",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "avg",
-                  "temporality": null,
-                  "timeAggregation": "max"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1083,7 +1070,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseMetrics_MemoryTracking",
+                  "temporality": null,
+                  "timeAggregation": "max",
+                  "spaceAggregation": "avg",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1180,21 +1179,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_InsertedBytes",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1204,7 +1191,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_InsertedBytes",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1301,21 +1300,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_NetworkReceiveBytes",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1325,24 +1312,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_NetworkSendBytes",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_NetworkReceiveBytes",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1352,7 +1339,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_NetworkSendBytes",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1449,21 +1448,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_OSCPUVirtualTimeMicroseconds",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1473,24 +1460,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_OSCPUWaitMicroseconds",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_OSCPUVirtualTimeMicroseconds",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1500,7 +1487,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_OSCPUWaitMicroseconds",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1597,21 +1596,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_OSReadBytes",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1621,24 +1608,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "ClickHouseProfileEvents_OSWriteBytes",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
+                  "metricName": "ClickHouseProfileEvents_OSReadBytes",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
                 }
               ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1648,7 +1635,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_OSWriteBytes",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1745,21 +1744,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_MergeTotalMilliseconds",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1769,7 +1756,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_MergeTotalMilliseconds",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1866,21 +1865,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "ClickHouseProfileEvents_Merge",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name = $host_name"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -1890,7 +1877,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "ClickHouseProfileEvents_Merge",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name = $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -1975,5 +1974,6 @@
       "title": "Background Merges Launched",
       "yAxisUnit": "cps"
     }
-  ]
+  ],
+  "uuid": "e74aeb83-ac4b-4313-8a97-216b62c8fc59"
 }

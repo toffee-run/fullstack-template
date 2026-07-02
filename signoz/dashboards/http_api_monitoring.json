@@ -53,7 +53,6 @@
   "tags": [],
   "title": "HTTP API Monitoring",
   "uploadedGrafana": false,
-  "uuid": "73da4dbc-de99-48b2-9131-fe256fef002a",
   "variables": {
     "4789176f-8aaa-40da-83f7-68fa152c0449": {
       "allSelected": false,
@@ -62,7 +61,7 @@
       "id": "4789176f-8aaa-40da-83f7-68fa152c0449",
       "modificationUUID": "915613fb-a7ec-4feb-add0-1938f60eebab",
       "multiSelect": false,
-      "name": "service_name",
+      "name": "service.name",
       "order": 0,
       "queryValue": "SELECT JSONExtractString(labels, 'service.name') AS `service.name` FROM signoz_metrics.time_series_v4_1day WHERE (metric_name = 'signoz_calls_total') AND (unix_milli >= (toUnixTimestamp(now() - toIntervalDay(1)) * 1000)) GROUP BY `service.name`",
       "showALLOption": false,
@@ -91,17 +90,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "expression": "count()"
-                }
-              ],
               "dataSource": "traces",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "(serviceName = $service_name AND httpMethod EXISTS AND spanKind = 'Server') AND span.httpRoute EXISTS AND httpMethod EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -132,20 +123,20 @@
                 }
               ],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "expression": "avg(durationNano)"
+                  "expression": "count()"
                 }
               ],
+              "filter": {
+                "expression": "(serviceName = $service.name AND httpMethod EXISTS AND spanKind = 'Server') httpRoute EXISTS AND httpMethod EXISTS"
+              }
+            },
+            {
               "dataSource": "traces",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "(serviceName = $service_name AND httpMethod EXISTS AND spanKind = 'Server') AND span.httpRoute EXISTS AND httpMethod EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -171,7 +162,15 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "expression": "avg(durationNano)"
+                }
+              ],
+              "filter": {
+                "expression": "(serviceName = $service.name AND httpMethod EXISTS AND spanKind = 'Server') httpRoute EXISTS AND httpMethod EXISTS"
+              }
             }
           ],
           "queryFormulas": []
@@ -278,9 +277,6 @@
               "dataSource": "traces",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "(serviceName = $service_name AND httpMethod EXISTS AND spanKind = 'Server')"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -297,7 +293,10 @@
               ],
               "pageSize": 10,
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "filter": {
+                "expression": "(serviceName = $service.name AND httpMethod EXISTS AND spanKind = 'Server')"
+              }
             }
           ],
           "queryFormulas": []
@@ -385,17 +384,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "expression": "p90(durationNano)"
-                }
-              ],
               "dataSource": "traces",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "(spanKind = 'Server' AND httpMethod EXISTS AND serviceName = $service_name) AND span.httpRoute EXISTS AND httpMethod EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -422,7 +413,15 @@
               "orderBy": [],
               "pageSize": 10,
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "expression": "p90(durationNano)"
+                }
+              ],
+              "filter": {
+                "expression": "(spanKind = 'Server' AND httpMethod EXISTS AND serviceName = $service.name) httpRoute EXISTS AND httpMethod EXISTS"
+              }
             }
           ],
           "queryFormulas": []
@@ -524,17 +523,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "expression": "rate()"
-                }
-              ],
               "dataSource": "traces",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "(httpMethod EXISTS AND serviceName IN $service_name AND spanKind = 'Server') AND responseStatusCode EXISTS AND span.httpRoute EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -560,7 +551,15 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "expression": "rate()"
+                }
+              ],
+              "filter": {
+                "expression": "(httpMethod EXISTS AND serviceName IN $service.name AND spanKind = 'Server') responseStatusCode EXISTS AND httpRoute EXISTS"
+              }
             }
           ],
           "queryFormulas": []
@@ -665,17 +664,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "expression": "count()"
-                }
-              ],
               "dataSource": "traces",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "serviceName IN $service_name AND externalHttpUrl EXISTS AND externalHttpMethod EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -700,20 +691,20 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "expression": "rate()"
+                  "expression": "count()"
                 }
               ],
+              "filter": {
+                "expression": "serviceName IN $service.name externalHttpUrl EXISTS AND externalHttpMethod EXISTS"
+              }
+            },
+            {
               "dataSource": "traces",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "serviceName IN $service_name AND externalHttpUrl EXISTS AND externalHttpMethod EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -738,20 +729,20 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "expression": "p90(durationNano)"
+                  "expression": "rate()"
                 }
               ],
+              "filter": {
+                "expression": "serviceName IN $service.name externalHttpUrl EXISTS AND externalHttpMethod EXISTS"
+              }
+            },
+            {
               "dataSource": "traces",
               "disabled": false,
               "expression": "C",
-              "filter": {
-                "expression": "serviceName IN $service_name AND externalHttpUrl EXISTS AND externalHttpMethod EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -776,7 +767,15 @@
               "limit": null,
               "orderBy": [],
               "queryName": "C",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "expression": "p90(durationNano)"
+                }
+              ],
+              "filter": {
+                "expression": "serviceName IN $service.name externalHttpUrl EXISTS AND externalHttpMethod EXISTS"
+              }
             }
           ],
           "queryFormulas": []
@@ -862,5 +861,6 @@
       "title": "External HTTP APIs",
       "yAxisUnit": "none"
     }
-  ]
+  ],
+  "uuid": "73da4dbc-de99-48b2-9131-fe256fef002a"
 }

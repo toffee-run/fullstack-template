@@ -44,7 +44,6 @@
   "tags": [],
   "title": "DB Calls Monitoring",
   "uploadedGrafana": false,
-  "uuid": "0d630585-bb46-440a-aef4-c3091728475c",
   "variables": {
     "4789176f-8aaa-40da-83f7-68fa152c0449": {
       "allSelected": false,
@@ -53,7 +52,7 @@
       "id": "4789176f-8aaa-40da-83f7-68fa152c0449",
       "modificationUUID": "915613fb-a7ec-4feb-add0-1938f60eebab",
       "multiSelect": false,
-      "name": "service_name",
+      "name": "service.name",
       "order": 0,
       "queryValue": "SELECT JSONExtractString(labels, 'service.name') AS `service.name` FROM signoz_metrics.time_series_v4_1day WHERE (metric_name = 'signoz_calls_total') AND (unix_milli >= (toUnixTimestamp(now() - toIntervalDay(1)) * 1000)) GROUP BY `service.name`",
       "showALLOption": false,
@@ -83,17 +82,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "expression": "count()"
-                }
-              ],
               "dataSource": "traces",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "(dbSystem EXISTS AND serviceName = $service_name) AND dbName EXISTS AND db.statement EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -119,20 +110,20 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "expression": "p50(durationNano)"
+                  "expression": "count()"
                 }
               ],
+              "filter": {
+                "expression": "(dbSystem EXISTS AND serviceName = $service.name) dbName EXISTS AND db.statement EXISTS"
+              }
+            },
+            {
               "dataSource": "traces",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "(dbSystem EXISTS AND serviceName = $service_name) AND dbName EXISTS AND db.statement EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -158,20 +149,20 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "expression": "rate()"
+                  "expression": "p50(durationNano)"
                 }
               ],
+              "filter": {
+                "expression": "(dbSystem EXISTS AND serviceName = $service.name) dbName EXISTS AND db.statement EXISTS"
+              }
+            },
+            {
               "dataSource": "traces",
               "disabled": false,
               "expression": "C",
-              "filter": {
-                "expression": "(dbSystem EXISTS AND serviceName = $service_name) AND dbName EXISTS AND db.statement EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -197,7 +188,15 @@
               "limit": null,
               "orderBy": [],
               "queryName": "C",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "expression": "rate()"
+                }
+              ],
+              "filter": {
+                "expression": "(dbSystem EXISTS AND serviceName = $service.name) dbName EXISTS AND db.statement EXISTS"
+              }
             }
           ],
           "queryFormulas": []
@@ -304,9 +303,6 @@
               "dataSource": "traces",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "(dbSystem EXISTS AND serviceName = $service_name)"
-              },
               "functions": [],
               "groupBy": [],
               "having": {
@@ -323,7 +319,10 @@
               ],
               "pageSize": 10,
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "filter": {
+                "expression": "(dbSystem EXISTS AND serviceName = $service.name)"
+              }
             }
           ],
           "queryFormulas": []
@@ -427,17 +426,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "expression": "count()"
-                }
-              ],
               "dataSource": "traces",
               "disabled": true,
               "expression": "A",
-              "filter": {
-                "expression": "(dbSystem EXISTS AND serviceName = $service_name AND hasError = 'true') AND dbName EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -456,20 +447,20 @@
               "orderBy": [],
               "pageSize": 10,
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
                   "expression": "count()"
                 }
               ],
+              "filter": {
+                "expression": "(dbSystem EXISTS AND serviceName = $service.name AND hasError = 'true') dbName EXISTS"
+              }
+            },
+            {
               "dataSource": "traces",
               "disabled": true,
               "expression": "B",
-              "filter": {
-                "expression": "dbSystem EXISTS AND dbName EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -488,7 +479,15 @@
               "orderBy": [],
               "pageSize": 10,
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "expression": "count()"
+                }
+              ],
+              "filter": {
+                "expression": "dbSystem EXISTS dbName EXISTS"
+              }
             }
           ],
           "queryFormulas": [
@@ -599,17 +598,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "expression": "rate()"
-                }
-              ],
               "dataSource": "traces",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "(dbSystem EXISTS AND serviceName = $service_name) AND dbName EXISTS"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -628,7 +619,15 @@
               "orderBy": [],
               "pageSize": 10,
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "expression": "rate()"
+                }
+              ],
+              "filter": {
+                "expression": "(dbSystem EXISTS AND serviceName = $service.name) dbName EXISTS"
+              }
             }
           ],
           "queryFormulas": []
@@ -714,5 +713,6 @@
       "title": "DB Transaction Rate",
       "yAxisUnit": "reqps"
     }
-  ]
+  ],
+  "uuid": "0d630585-bb46-440a-aef4-c3091728475c"
 }

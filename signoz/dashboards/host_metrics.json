@@ -450,15 +450,9 @@
       ]
     }
   },
-  "tags": [
-    "hostmetrics",
-    "cpu",
-    "memory",
-    "network"
-  ],
+  "tags": ["hostmetrics", "cpu", "memory", "network"],
   "title": "Host Metrics",
   "uploadedGrafana": false,
-  "uuid": "019d046c-e150-7464-a35e-d97c3784bb63",
   "variables": {
     "251c0d09-804b-46fa-b3bf-6498251a53b1": {
       "allSelected": false,
@@ -470,7 +464,7 @@
       "id": "251c0d09-804b-46fa-b3bf-6498251a53b1",
       "modificationUUID": "2dff30d6-7f7a-43da-bf94-38875c966e12",
       "multiSelect": false,
-      "name": "host_name",
+      "name": "host.name",
       "order": 1,
       "queryValue": "SELECT JSONExtractString(labels, 'host.name') AS `host.name` FROM signoz_metrics.distributed_time_series_v4_1day WHERE metric_name = 'system.cpu.time' GROUP BY `host.name`",
       "showALLOption": true,
@@ -510,7 +504,7 @@
               "disabled": true,
               "expression": "A",
               "filter": {
-                "expression": "(host.name IN $host_name  AND state != 'idle')"
+                "expression": "(host.name IN $host.name  AND state != 'idle')"
               },
               "filters": {
                 "items": [
@@ -563,7 +557,7 @@
               "disabled": true,
               "expression": "B",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -712,7 +706,7 @@
               "disabled": true,
               "expression": "A",
               "filter": {
-                "expression": "(host.name IN $host_name  AND state = 'used')"
+                "expression": "(host.name IN $host.name  AND state = 'used')"
               },
               "filters": {
                 "items": [
@@ -765,7 +759,7 @@
               "disabled": true,
               "expression": "B",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -926,7 +920,7 @@
               "disabled": true,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -978,7 +972,7 @@
               "disabled": true,
               "expression": "B",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1127,7 +1121,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1284,7 +1278,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1327,7 +1321,7 @@
               "disabled": false,
               "expression": "B",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1370,7 +1364,7 @@
               "disabled": false,
               "expression": "C",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1512,7 +1506,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1677,7 +1671,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1836,7 +1830,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -1995,7 +1989,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -2154,7 +2148,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -2313,7 +2307,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -2472,7 +2466,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -2631,7 +2625,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -2782,7 +2776,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -2949,7 +2943,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -3134,7 +3128,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -3323,7 +3317,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -3465,7 +3459,7 @@
               "disabled": false,
               "expression": "A",
               "filter": {
-                "expression": "host.name IN $host_name "
+                "expression": "host.name IN $host.name "
               },
               "filters": {
                 "items": [
@@ -3578,5 +3572,6 @@
       "title": "Network IO (bytes)",
       "yAxisUnit": "bytes"
     }
-  ]
+  ],
+  "uuid": "019d046c-e150-7464-a35e-d97c3784bb63"
 }

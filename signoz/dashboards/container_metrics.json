@@ -3,12 +3,39 @@
   "layout": [
     {
       "h": 6,
-      "i": "51833c89-4160-4d46-9d64-0a8ee170bb8f",
+      "i": "93c4afeb-0168-4c7b-864b-0a9678970958",
       "moved": false,
       "static": false,
       "w": 6,
       "x": 0,
-      "y": 0
+      "y": 9
+    },
+    {
+      "h": 6,
+      "i": "dc155385-43d7-4be6-b5a8-2c23263412de",
+      "moved": false,
+      "static": false,
+      "w": 6,
+      "x": 0,
+      "y": 6
+    },
+    {
+      "h": 6,
+      "i": "1c88d324-ee9c-4f05-a02d-18075e12a68c",
+      "moved": false,
+      "static": false,
+      "w": 6,
+      "x": 0,
+      "y": 3
+    },
+    {
+      "h": 6,
+      "i": "40a92643-1c74-428d-bec2-01aaf27579f2",
+      "moved": false,
+      "static": false,
+      "w": 6,
+      "x": 6,
+      "y": 6
     },
     {
       "h": 6,
@@ -21,12 +48,12 @@
     },
     {
       "h": 6,
-      "i": "1c88d324-ee9c-4f05-a02d-18075e12a68c",
+      "i": "51833c89-4160-4d46-9d64-0a8ee170bb8f",
       "moved": false,
       "static": false,
       "w": 6,
       "x": 0,
-      "y": 6
+      "y": 0
     },
     {
       "h": 6,
@@ -35,43 +62,12 @@
       "static": false,
       "w": 6,
       "x": 6,
-      "y": 6
-    },
-    {
-      "h": 6,
-      "i": "dc155385-43d7-4be6-b5a8-2c23263412de",
-      "moved": false,
-      "static": false,
-      "w": 6,
-      "x": 0,
-      "y": 12
-    },
-    {
-      "h": 6,
-      "i": "40a92643-1c74-428d-bec2-01aaf27579f2",
-      "moved": false,
-      "static": false,
-      "w": 6,
-      "x": 6,
-      "y": 12
-    },
-    {
-      "h": 6,
-      "i": "93c4afeb-0168-4c7b-864b-0a9678970958",
-      "moved": false,
-      "static": false,
-      "w": 6,
-      "x": 0,
-      "y": 18
+      "y": 3
     }
   ],
   "name": "",
-  "panelMap": {},
-  "tags": [
-    "container"
-  ],
+  "tags": ["container"],
   "title": "Container Metrics",
-  "uploadedGrafana": false,
   "variables": {
     "9d84cf1a-19be-4ac1-b267-750756484e75": {
       "allSelected": false,
@@ -80,7 +76,7 @@
       "id": "9d84cf1a-19be-4ac1-b267-750756484e75",
       "modificationUUID": "0e0245b9-bb06-417c-990c-8f552793a11e",
       "multiSelect": false,
-      "name": "host_name",
+      "name": "host.name",
       "order": 0,
       "queryValue": "SELECT DISTINCT JSONExtractString(labels, 'host.name')\nFROM signoz_metrics.distributed_time_series_v4_1day\nWHERE metric_name LIKE 'container_%' AND unix_milli >= now() - INTERVAL 1 DAY;",
       "selectedValue": "testingapp-server",
@@ -104,21 +100,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "container.cpu.utilization",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "avg"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -137,7 +121,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "container.cpu.utilization",
+                  "temporality": null,
+                  "timeAggregation": "avg",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -234,21 +230,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "container.memory.percent",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "avg"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -267,7 +251,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "container.memory.percent",
+                  "temporality": null,
+                  "timeAggregation": "avg",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -353,10 +349,6 @@
       "yAxisUnit": "percent"
     },
     {
-      "columnWidths": {
-        "F1": 145,
-        "F2": 145
-      },
       "description": "",
       "fillSpans": false,
       "id": "40a92643-1c74-428d-bec2-01aaf27579f2",
@@ -368,21 +360,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "container.memory.usage.total",
-                  "reduceTo": "max",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "avg"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": true,
               "expression": "A",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -401,24 +381,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "container.memory.usage.limit",
-                  "reduceTo": "max",
-                  "spaceAggregation": "sum",
+                  "metricName": "container.memory.usage.total",
                   "temporality": null,
-                  "timeAggregation": "avg"
+                  "timeAggregation": "avg",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "max"
                 }
               ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": true,
               "expression": "B",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -437,7 +417,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "container.memory.usage.limit",
+                  "temporality": null,
+                  "timeAggregation": "avg",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "max"
+                }
+              ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
             }
           ],
           "queryFormulas": [
@@ -547,21 +539,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "container.network.io.usage.rx_bytes",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -580,7 +560,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "container.network.io.usage.rx_bytes",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -677,21 +669,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "container.network.io.usage.tx_bytes",
-                  "reduceTo": "avg",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -710,7 +690,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "container.network.io.usage.tx_bytes",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "avg"
+                }
+              ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -807,21 +799,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "container.network.io.usage.rx_dropped",
-                  "reduceTo": "sum",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": false,
               "expression": "A",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -840,24 +820,24 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
-            },
-            {
+              "stepInterval": 60,
               "aggregations": [
                 {
-                  "metricName": "container.network.io.usage.tx_dropped",
-                  "reduceTo": "sum",
-                  "spaceAggregation": "sum",
+                  "metricName": "container.network.io.usage.rx_dropped",
                   "temporality": null,
-                  "timeAggregation": "rate"
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "sum"
                 }
               ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
+            },
+            {
               "dataSource": "metrics",
               "disabled": false,
               "expression": "B",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -876,7 +856,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "B",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "container.network.io.usage.tx_dropped",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "sum"
+                }
+              ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
             }
           ],
           "queryFormulas": []
@@ -973,21 +965,9 @@
         "builder": {
           "queryData": [
             {
-              "aggregations": [
-                {
-                  "metricName": "container.blockio.io_service_bytes_recursive",
-                  "reduceTo": "sum",
-                  "spaceAggregation": "sum",
-                  "temporality": null,
-                  "timeAggregation": "rate"
-                }
-              ],
               "dataSource": "metrics",
               "disabled": true,
               "expression": "A",
-              "filter": {
-                "expression": "host.name IN $host_name"
-              },
               "functions": [],
               "groupBy": [
                 {
@@ -1014,7 +994,19 @@
               "limit": null,
               "orderBy": [],
               "queryName": "A",
-              "stepInterval": 60
+              "stepInterval": 60,
+              "aggregations": [
+                {
+                  "metricName": "container.blockio.io_service_bytes_recursive",
+                  "temporality": null,
+                  "timeAggregation": "rate",
+                  "spaceAggregation": "sum",
+                  "reduceTo": "sum"
+                }
+              ],
+              "filter": {
+                "expression": "host.name IN $host.name"
+              }
             }
           ],
           "queryFormulas": [
