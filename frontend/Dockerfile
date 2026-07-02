@@ -23,7 +23,7 @@ RUN set -eux; \
     ; \
     rm -rf /var/lib/apt/lists/*;
 HEALTHCHECK --interval=3s --timeout=1s --start-period=2s --retries=3 \
-    CMD curl -f http://localhost:$FRONTEND_PORT/api/health || exit 1
+    CMD curl -f http://localhost:$FRONTEND_PORT/health || exit 1
 
 COPY entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
