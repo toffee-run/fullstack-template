@@ -5,11 +5,10 @@ http:
         - websecure
       rule: "PathPrefix(`/`)"
       priority: 1
-      service: frontend-svc
+      service: frontend-service
       tls: {}
   services:
-    frontend-svc:
+    frontend-service:
       loadBalancer:
         servers:
           - url: 'http://{{ env "FRONTEND_HOST" }}:{{ env "FRONTEND_PORT" }}'
-        passHostHeader: true

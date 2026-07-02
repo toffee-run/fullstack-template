@@ -3,7 +3,7 @@ api:
 
 providers:
   file:
-    filename: /etc/traefik/dynamic.yml
+    directory: /etc/traefik/dynamic
     watch: true
 
 entryPoints:
@@ -16,9 +16,9 @@ entryPoints:
           scheme: https
           permanent: true
   websecure:
-    address: ":443"
+    address: ":${PORT}"
     http3:
-      advertisedPort: 443
+      advertisedPort: ${PORT}
 
 experimental:
   otlpLogs: true

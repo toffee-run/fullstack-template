@@ -1,0 +1,21 @@
+http:
+  middlewares:
+    ory_kratos-strip:
+      stripPrefix:
+        prefixes:
+          - "/auth"
+  routers:
+    ory_kratos:
+      entryPoints:
+        - websecure
+      rule: "PathPrefix(`/auth`)"
+      priority: 2
+      middlewares:
+        - ory_kratos-strip
+      service: ory_kratos-service
+      tls: {}
+  services:
+    ory_kratos-service:
+      loadBalancer:
+        servers:
+          - url: 'http://{{ env "KRATOS_HOST" }}:{{ env "KRATOS_PUBLIC_PORT" }}'
