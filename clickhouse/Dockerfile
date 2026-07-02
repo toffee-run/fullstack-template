@@ -13,5 +13,5 @@ RUN set -eux; \
     rm $FILE_NAME;
 COPY histogramQuantile.xml /etc/clickhouse-server/
 
-HEALTHCHECK --interval=5s --timeout=2s --start-period=4s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=1s --start-period=15s --retries=5 \
     CMD ["wget", "--spider", "-q", "http://localhost:8123/ping"]
