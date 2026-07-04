@@ -16,6 +16,12 @@ receivers:
                 - ${env:KRATOS_HOST}:${env:KRATOS_ADMIN_PORT}
           metrics_path: /metrics/prometheus
 
+        - job_name: oathkeeper
+          static_configs:
+            - targets:
+                - ${env:OATHKEEPER_HOST}:${env:OATHKEEPER_PROMETHEUS_PORT}
+          metrics_path: /metrics
+
   postgresql:
     endpoint: ${env:POSTGRES_HOST}:${env:POSTGRES_PORT}
     collection_interval: 15s
