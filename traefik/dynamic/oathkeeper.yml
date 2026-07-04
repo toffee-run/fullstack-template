@@ -1,0 +1,11 @@
+http:
+  middlewares:
+    oathkeeper-auth:
+      forwardAuth:
+        address: 'http://{{ env "OATHKEEPER_HOST" }}:{{ env "OATHKEEPER_PORT" }}/decisions'
+        trustForwardHeader: true
+        authRequestHeaders:
+          - Cookie
+          - Authorization
+        authResponseHeaders:
+          - X-User-Session

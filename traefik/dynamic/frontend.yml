@@ -5,6 +5,8 @@ http:
         - websecure
       rule: "PathPrefix(`/`)"
       priority: 1
+      middlewares:
+        - oathkeeper-auth
       service: frontend-service
       tls: {}
   services:
