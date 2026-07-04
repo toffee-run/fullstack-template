@@ -30,11 +30,13 @@ services:
         - *frontend-dep
         - *kratos-dep
         - *otel-services-dep
+      oathkeeper: { condition: service_healthy }
     env_file:
       - ./.env/traefik.env
       - ./.env/frontend.env
       - ./.env/otel-collector.env
       - ./.env/kratos.env
+      - ./.env/oathkeeper.env
 
   frontend:
     <<: *restart-unless
@@ -43,6 +45,16 @@ services:
         - *otel-services-dep
     env_file:
       - ./.env/frontend.env
+      - ./.env/otel-collector.env
+
+  oathkeeper:
+    <<: *restart-unless
+    depends_on:
+      <<:
+        - *kratos-dep
+    env_file:
+      - ./.env/kratos.env
+      - ./.env/oathkeeper.env
       - ./.env/otel-collector.env
 
   kratos:

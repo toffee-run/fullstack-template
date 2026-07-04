@@ -1,0 +1,58 @@
+errors:
+  fallback:
+    - json
+  handlers:
+    json:
+      enabled: true
+      config:
+        verbose: true
+
+access_rules:
+  matching_strategy: regexp
+  repositories:
+    - file:///etc/config/oathkeeper/rules.yaml
+
+authenticators:
+  anonymous:
+    enabled: true
+    config:
+      subject: anonymous
+  cookie_session:
+    enabled: true
+    config:
+      preserve_path: true
+      preserve_query: true
+      extra_from: "@this"
+      subject_from: identity.id
+      only:
+        - ory_kratos_session
+  bearer_token:
+    enabled: true
+    config:
+      preserve_path: true
+      preserve_query: true
+      extra_from: "@this"
+      subject_from: identity.id
+
+authorizers:
+  allow:
+    enabled: true
+
+mutators:
+  noop:
+    enabled: true
+  header:
+    enabled: true
+    config:
+      headers:
+        X-User-Session: "{{ toJson .Extra }}"
+
+tracing:
+  provider: otel
+  providers:
+    otlp:
+      insecure: true
+
+serve:
+  prometheus:
+    metrics_path: /metrics

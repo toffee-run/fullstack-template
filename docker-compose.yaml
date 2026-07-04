@@ -1,6 +1,7 @@
 include:
   - clickhouse/compose.yaml
   - kratos/compose.yaml
+  - oathkeeper/compose.yaml
   - otel-collectors/compose.yaml
   - postgres/compose.yaml
   - signoz/compose.yaml

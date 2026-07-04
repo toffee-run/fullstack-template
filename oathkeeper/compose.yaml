@@ -1,0 +1,7 @@
+services:
+  oathkeeper:
+    build: .
+    volumes:
+      - ./oathkeeper.yaml:/etc/config/oathkeeper/oathkeeper.yaml:ro
+      - ./rules.yaml:/etc/config/oathkeeper/rules.yaml:ro
+    command: serve -c /etc/config/oathkeeper/oathkeeper.yaml
