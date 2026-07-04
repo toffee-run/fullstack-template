@@ -1,8 +1,7 @@
 FROM traefik:v3.7.1 AS base
 WORKDIR /etc/traefik
 
-RUN set -eux; \
-    apk add --no-cache \
+RUN apk add --no-cache \
     envsubst \
     ;
 

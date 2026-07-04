@@ -1,7 +1,6 @@
 FROM alpine:3.22
 
-RUN set -eux; \
-    apk add --no-cache \
+RUN apk add --no-cache \
     curl \
     ;
 HEALTHCHECK --interval=5s --timeout=1s --start-period=2s --retries=3 \
