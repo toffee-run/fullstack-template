@@ -36,7 +36,6 @@ courier:
 
 tracing:
   provider: otel
-  service_name: kratos
   providers:
     otlp:
       insecure: true
