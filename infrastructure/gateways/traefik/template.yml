@@ -26,7 +26,7 @@ experimental:
 metrics:
   otlp:
     grpc:
-      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      endpoint: "${MASTER_COLLECTOR_HOST}:${MASTER_COLLECTOR_GRPC}"
       insecure: true
     addRoutersLabels: true
     pushInterval: 1s
@@ -35,17 +35,17 @@ log:
   level: INFO
   otlp:
     grpc:
-      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      endpoint: "${MASTER_COLLECTOR_HOST}:${MASTER_COLLECTOR_GRPC}"
       insecure: true
 
 accessLog:
   otlp:
     grpc:
-      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      endpoint: "${MASTER_COLLECTOR_HOST}:${MASTER_COLLECTOR_GRPC}"
       insecure: true
 
 tracing:
   otlp:
     grpc:
-      endpoint: "${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_GRPC}"
+      endpoint: "${MASTER_COLLECTOR_HOST}:${MASTER_COLLECTOR_GRPC}"
       insecure: true

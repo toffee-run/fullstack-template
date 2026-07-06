@@ -7,6 +7,6 @@ RUN apk add --no-cache \
 
 COPY entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
-ENTRYPOINT [ "entrypoint" ]
+ENTRYPOINT [ "entrypoint", "traefik" ]
 
-CMD [ "traefik" ]
+CMD [ ]
