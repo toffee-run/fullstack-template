@@ -1,0 +1,6 @@
+include:
+  - clickhouse/compose.yaml
+  - meilisearch/compose.yaml
+  - postgres/compose.yaml
+  - redis/compose.yaml
+  - seaweedfs/compose.yaml
