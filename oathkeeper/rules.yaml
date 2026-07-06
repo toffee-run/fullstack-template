@@ -1,4 +1,4 @@
-- id: "wildcard-identity-enricher"
+- id: "default"
   match:
     url: "<http|https>://<.*>"
     methods:
