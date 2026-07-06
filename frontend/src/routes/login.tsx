@@ -1,87 +1,62 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { LoginFlow } from "@ory/kratos-client";
+import { useKratosFlow } from "@/hooks/useKratosFlow";
+import { KratosForm } from "@/components/KratosForm";
 
-type SearchParams = {
+interface LoginSearch {
   flow?: string;
-};
+  return_to?: string;
+}
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search: Record<string, unknown>): SearchParams => ({
-    flow: typeof search.flow === "string" ? search.flow : undefined,
-  }),
-  component: LoginComponent,
+  validateSearch: (search: Record<string, unknown>): LoginSearch => {
+    return {
+      flow: search.flow as string | undefined,
+      return_to: search.return_to as string | undefined,
+    };
+  },
+  component: LoginPage,
 });
 
-function LoginComponent() {
-  const { flow: flowId } = Route.useSearch() as SearchParams;
-  const [flow, setFlow] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+function LoginPage() {
+  const search = Route.useSearch();
 
-  useEffect(() => {
-    if (!flowId) {
-      window.location.href = "/auth/self-service/login/browser";
-      return;
-    }
+  const { flow, loading, error, submitFlow } = useKratosFlow<LoginFlow>({
+    flowType: "login",
+    flowId: search.flow,
+    returnTo: search.return_to,
+  });
 
-    fetch(`/auth/self-service/login/flows?id=${flowId}`, {
-      headers: { Accept: "application/json" },
-    })
-      .then((res) => {
-        if (res.status === 404 || res.status === 410 || res.status === 403 || res.status === 400) {
-          window.location.href = "/auth/self-service/login/browser";
-          return null;
-        }
-        if (!res.ok) throw new Error("Failed to fetch login flow");
-        return res.json();
-      })
-      .then((data) => {
-        if (data) setFlow(data);
-      })
-      .catch((err) => setError(err.message));
-  }, [flowId]);
+  if (error) {
+    return (
+      <div className="login-container">
+        <h1>Вход</h1>
+        <div className="error-box">{error}</div>
+        <p>
+          <a href="/login">Попробовать снова</a>
+        </p>
+      </div>
+    );
+  }
 
-  if (error) return <div>Error: {error}</div>;
-  if (!flow) return <div>Loading...</div>;
+  if (loading || !flow) {
+    return (
+      <div className="login-container">
+        <h1>Вход</h1>
+        <div className="loading">Загрузка формы...</div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form action={flow.ui.action} method={flow.ui.method}>
-        {flow.ui.nodes.map((node: any, idx: number) => {
-          if (node.type === "input") {
-            const attrs = node.attributes;
-            if (attrs.type === "submit") {
-              return (
-                <button
-                  key={idx}
-                  name={attrs.name}
-                  type="submit"
-                  value={attrs.value}
-                  disabled={attrs.disabled}
-                >
-                  {node.meta?.label?.text || attrs.value || "Submit"}
-                </button>
-              );
-            }
-            return (
-              <div key={idx}>
-                {attrs.type !== "hidden" && (
-                  <label style={{ display: "block", marginTop: "10px" }}>
-                    {node.meta?.label?.text || attrs.name}
-                  </label>
-                )}
-                <input
-                  name={attrs.name}
-                  type={attrs.type}
-                  defaultValue={attrs.value}
-                  disabled={attrs.disabled}
-                />
-              </div>
-            );
-          }
-          return null;
-        })}
-      </form>
+    <div className="login-container">
+      <h1>Вход</h1>
+      <KratosForm ui={flow.ui} submitFlow={submitFlow} />
+      <p className="login-links">
+        <a href="/registration">Зарегистрироваться</a> |{" "}
+        <a href="/recovery">Восстановить пароль</a> |{" "}
+        <a href="/verification">Подтвердить аккаунт</a>
+      </p>
     </div>
   );
 }

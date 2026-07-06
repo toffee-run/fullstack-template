@@ -1,87 +1,60 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { RegistrationFlow } from "@ory/kratos-client";
+import { useKratosFlow } from "@/hooks/useKratosFlow";
+import { KratosForm } from "@/components/KratosForm";
 
-type SearchParams = {
+interface RegistrationSearch {
   flow?: string;
-};
+  return_to?: string;
+}
 
 export const Route = createFileRoute("/registration")({
-  validateSearch: (search: Record<string, unknown>): SearchParams => ({
-    flow: typeof search.flow === "string" ? search.flow : undefined,
-  }),
-  component: RegistrationComponent,
+  validateSearch: (search: Record<string, unknown>): RegistrationSearch => {
+    return {
+      flow: search.flow as string | undefined,
+      return_to: search.return_to as string | undefined,
+    };
+  },
+  component: RegistrationPage,
 });
 
-function RegistrationComponent() {
-  const { flow: flowId } = Route.useSearch() as SearchParams;
-  const [flow, setFlow] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+function RegistrationPage() {
+  const search = Route.useSearch();
 
-  useEffect(() => {
-    if (!flowId) {
-      window.location.href = "/auth/self-service/registration/browser";
-      return;
-    }
+  const { flow, loading, error, submitFlow } = useKratosFlow<RegistrationFlow>({
+    flowType: "registration",
+    flowId: search.flow,
+    returnTo: search.return_to,
+  });
 
-    fetch(`/auth/self-service/registration/flows?id=${flowId}`, {
-      headers: { Accept: "application/json" },
-    })
-      .then((res) => {
-        if (res.status === 404 || res.status === 410 || res.status === 403 || res.status === 400) {
-          window.location.href = "/auth/self-service/registration/browser";
-          return null;
-        }
-        if (!res.ok) throw new Error("Failed to fetch registration flow");
-        return res.json();
-      })
-      .then((data) => {
-        if (data) setFlow(data);
-      })
-      .catch((err) => setError(err.message));
-  }, [flowId]);
+  if (error) {
+    return (
+      <div className="registration-container">
+        <h1>Регистрация</h1>
+        <div className="error-box">{error}</div>
+        <p>
+          <a href="/registration">Попробовать снова</a>
+        </p>
+      </div>
+    );
+  }
 
-  if (error) return <div>Error: {error}</div>;
-  if (!flow) return <div>Loading...</div>;
+  if (loading || !flow) {
+    return (
+      <div className="registration-container">
+        <h1>Регистрация</h1>
+        <div className="loading">Загрузка формы...</div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Registration</h1>
-      <form action={flow.ui.action} method={flow.ui.method}>
-        {flow.ui.nodes.map((node: any, idx: number) => {
-          if (node.type === "input") {
-            const attrs = node.attributes;
-            if (attrs.type === "submit") {
-              return (
-                <button
-                  key={idx}
-                  name={attrs.name}
-                  type="submit"
-                  value={attrs.value}
-                  disabled={attrs.disabled}
-                >
-                  {node.meta?.label?.text || attrs.value || "Submit"}
-                </button>
-              );
-            }
-            return (
-              <div key={idx}>
-                {attrs.type !== "hidden" && (
-                  <label style={{ display: "block", marginTop: "10px" }}>
-                    {node.meta?.label?.text || attrs.name}
-                  </label>
-                )}
-                <input
-                  name={attrs.name}
-                  type={attrs.type}
-                  defaultValue={attrs.value}
-                  disabled={attrs.disabled}
-                />
-              </div>
-            );
-          }
-          return null;
-        })}
-      </form>
+    <div className="registration-container">
+      <h1>Регистрация</h1>
+      <KratosForm ui={flow.ui} submitFlow={submitFlow} />
+      <p className="registration-links">
+        <a href="/login">Уже есть аккаунт? Войти</a>
+      </p>
     </div>
   );
 }

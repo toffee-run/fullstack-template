@@ -1,87 +1,58 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { SettingsFlow } from "@ory/kratos-client";
+import { useKratosFlow } from "@/hooks/useKratosFlow";
+import { KratosForm } from "@/components/KratosForm";
 
-type SearchParams = {
+interface SettingsSearch {
   flow?: string;
-};
+  return_to?: string;
+}
 
 export const Route = createFileRoute("/settings")({
-  validateSearch: (search: Record<string, unknown>): SearchParams => ({
-    flow: typeof search.flow === "string" ? search.flow : undefined,
-  }),
-  component: SettingsComponent,
+  validateSearch: (search: Record<string, unknown>): SettingsSearch => {
+    return {
+      flow: search.flow as string | undefined,
+    };
+  },
+  component: SettingsPage,
 });
 
-function SettingsComponent() {
-  const { flow: flowId } = Route.useSearch() as SearchParams;
-  const [flow, setFlow] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+function SettingsPage() {
+  const search = Route.useSearch();
 
-  useEffect(() => {
-    if (!flowId) {
-      window.location.href = "/auth/self-service/settings/browser";
-      return;
-    }
+  const { flow, loading, error, submitFlow } = useKratosFlow<SettingsFlow>({
+    flowType: "settings",
+    flowId: search.flow,
+  });
 
-    fetch(`/auth/self-service/settings/flows?id=${flowId}`, {
-      headers: { Accept: "application/json" },
-    })
-      .then((res) => {
-        if (res.status === 404 || res.status === 410 || res.status === 403 || res.status === 400) {
-          window.location.href = "/auth/self-service/settings/browser";
-          return null;
-        }
-        if (!res.ok) throw new Error("Failed to fetch settings flow");
-        return res.json();
-      })
-      .then((data) => {
-        if (data) setFlow(data);
-      })
-      .catch((err) => setError(err.message));
-  }, [flowId]);
+  if (error) {
+    return (
+      <div className="settings-container">
+        <h1>Настройки профиля</h1>
+        <div className="error-box">{error}</div>
+        <p>
+          <a href="/settings">Попробовать снова</a>
+        </p>
+      </div>
+    );
+  }
 
-  if (error) return <div>Error: {error}</div>;
-  if (!flow) return <div>Loading...</div>;
+  if (loading || !flow) {
+    return (
+      <div className="settings-container">
+        <h1>Настройки профиля</h1>
+        <div className="loading">Загрузка настроек...</div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Settings</h1>
-      <form action={flow.ui.action} method={flow.ui.method}>
-        {flow.ui.nodes.map((node: any, idx: number) => {
-          if (node.type === "input") {
-            const attrs = node.attributes;
-            if (attrs.type === "submit") {
-              return (
-                <button
-                  key={idx}
-                  name={attrs.name}
-                  type="submit"
-                  value={attrs.value}
-                  disabled={attrs.disabled}
-                >
-                  {node.meta?.label?.text || attrs.value || "Submit"}
-                </button>
-              );
-            }
-            return (
-              <div key={idx}>
-                {attrs.type !== "hidden" && (
-                  <label style={{ display: "block", marginTop: "10px" }}>
-                    {node.meta?.label?.text || attrs.name}
-                  </label>
-                )}
-                <input
-                  name={attrs.name}
-                  type={attrs.type}
-                  defaultValue={attrs.value}
-                  disabled={attrs.disabled}
-                />
-              </div>
-            );
-          }
-          return null;
-        })}
-      </form>
+    <div className="settings-container">
+      <h1>Настройки профиля</h1>
+      <KratosForm ui={flow.ui} submitFlow={submitFlow} />
+      <p className="settings-links">
+        <a href="/">На главную</a>
+      </p>
     </div>
   );
 }
