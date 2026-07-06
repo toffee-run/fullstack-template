@@ -6,9 +6,9 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: 0.0.0.0:${env:OTEL_COLLECTOR_GRPC}
+        endpoint: 0.0.0.0:${env:MASTER_COLLECTOR_GRPC}
       http:
-        endpoint: 0.0.0.0:${env:OTEL_COLLECTOR_HTTP}
+        endpoint: 0.0.0.0:${env:MASTER_COLLECTOR_HTTP}
 
 extensions:
   health_check:
@@ -121,7 +121,8 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resourcedetection, memory_limiter, batch/traces, signozspanmetrics]
+      processors:
+        [resourcedetection, memory_limiter, batch/traces, signozspanmetrics]
       exporters: [clickhousetraces, metadataexporter, signozmeter]
 
     metrics:

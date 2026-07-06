@@ -1,0 +1,8 @@
+include:
+  - otel-collectors/compose.yaml
+  - signoz/compose.yaml
+
+services:
+  signoz:
+    depends_on:
+      collector_migrator: { condition: service_completed_successfully }

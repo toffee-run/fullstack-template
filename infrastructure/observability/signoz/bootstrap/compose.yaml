@@ -1,0 +1,6 @@
+services:
+  signoz-bootstrap:
+    build: .
+    restart: on-failure
+    depends_on:
+      signoz: { condition: service_healthy }

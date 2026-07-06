@@ -52,7 +52,7 @@ processors:
 
 exporters:
   otlp:
-    endpoint: ${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_GRPC}
+    endpoint: ${env:MASTER_COLLECTOR_HOST}:${env:MASTER_COLLECTOR_GRPC}
     tls:
       insecure: true
 

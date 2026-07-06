@@ -1,0 +1,28 @@
+include:
+  - host-collector/compose.yaml
+  - integrations-collector/compose.yaml
+
+services:
+  collector_migrator:
+    <<: &build
+      build: .
+    restart: on-failure
+    command:
+      - /bin/sh
+      - -c
+      - |
+        /signoz-otel-collector migrate bootstrap
+        /signoz-otel-collector migrate sync up
+        /signoz-otel-collector migrate async up
+
+  master-collector:
+    <<: *build
+    depends_on:
+      collector_migrator: { condition: service_completed_successfully }
+    volumes: [./services.yaml:/etc/otel/config.yaml:ro]
+
+  host-collector: &depend_on-master-collector
+    depends_on:
+      master-collector: { condition: service_healthy }
+
+  integrations-collector: *depend_on-master-collector

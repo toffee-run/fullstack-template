@@ -1,0 +1,12 @@
+include:
+  - bootstrap/compose.yaml
+
+volumes:
+  signoz-data: {}
+
+services:
+  signoz:
+    build: .
+    environment:
+      SIGNOZ_SQLSTORE_SQLITE_PATH: /var/lib/signoz/signoz.db
+    volumes: [signoz-data:/var/lib/signoz]

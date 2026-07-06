@@ -1,0 +1,10 @@
+services:
+  host-collector:
+    image: otel/opentelemetry-collector-contrib:0.155.0
+    user: "0:0"
+    volumes:
+      - ./host.yaml:/etc/otelcol-contrib/config.yaml:ro
+      - ${XDG_RUNTIME_DIR:-/var/run}/docker.sock:/var/run/docker.sock:ro
+      - /proc:/hostfs/proc:ro
+      - /sys:/hostfs/sys:ro
+      - /:/hostfs:ro
