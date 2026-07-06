@@ -14,20 +14,25 @@ selfservice:
       enabled: true
     code:
       enabled: true
+      config:
+        passwordless_enabled: false
+
   flows:
-    recovery:
-      enabled: true
-      use: code
+    registration:
+      style: unified
+      after:
+        password:
+          hooks:
+            - hook: session
+            - hook: show_verification_ui
 
     verification:
       enabled: true
       use: code
 
-    registration:
-      after:
-        password:
-          hooks:
-            - hook: show_verification_ui
+    recovery:
+      enabled: true
+      use: code
 
 courier:
   smtp:
