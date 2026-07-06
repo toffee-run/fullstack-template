@@ -1,0 +1,51 @@
+services:
+  kratos:
+    env_file:
+      - postgres.env
+      - kratos.env
+      - traefik.env
+      - master-collector.env
+      - smtp.env
+  oathkeeper:
+    env_file:
+      - oathkeeper.env
+      - kratos.env
+      - master-collector.env
+  traefik:
+    env_file:
+      - traefik.env
+      - master-collector.env
+      - frontend.env
+      - oathkeeper.env
+      - kratos.env
+  host-collector:
+    env_file:
+      - master-collector.env
+  integrations-collector:
+    env_file:
+      - clickhouse.env
+      - kratos.env
+      - oathkeeper.env
+      - postgres.env
+      - master-collector.env
+  collector_migrator:
+    env_file:
+      - clickhouse.env
+  master-collector:
+    env_file:
+      - clickhouse.env
+      - master-collector.env
+  signoz:
+    env_file:
+      - signoz.env
+      - clickhouse.env
+  signoz-bootstrap:
+    env_file:
+      - signoz.env
+  clickhouse:
+    env_file:
+      - clickhouse.env
+  postgres:
+    env_file:
+      - postgres.env
+      - kratos.env
