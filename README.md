@@ -17,7 +17,7 @@ docker compose up --build
 | Слой               | Технология                                                       |
 | ------------------- | ---------------------------------------------------------------- |
 | Frontend            | React 19 · TanStack Start · Nitro · Vite                        |
-| Аутентификация      | Ory Kratos                                                       |
+| Аутентификация      | Ory Kratos · Ory Oathkeeper                                      |
 | База данных         | PostgreSQL                                                       |
 | Reverse Proxy       | Traefik (HTTPS + HTTP/3)                                         |
 | Observability       | OpenTelemetry · SigNoz · ClickHouse                              |
@@ -36,7 +36,9 @@ graph TD
     end
 
     AuthRoute -->|stripPrefix| Kratos
-    AppRoute --> Frontend
+    AppRoute -.->|1. forwardAuth| Oathkeeper
+    Oathkeeper -.->|2. check session| Kratos
+    AppRoute -->|3. proxy (X-User-ID)| Frontend
 
     Kratos --> PostgreSQL
     Kratos -->|SMTP| Mailpit
@@ -44,6 +46,7 @@ graph TD
     Traefik -->|push OTLP| OtelServices
     Frontend -->|push OTLP| OtelServices
     Kratos -->|push OTLP| OtelServices
+    Oathkeeper -->|push OTLP| OtelServices
 
     subgraph OtelServices["otel-services (gateway)"]
         direction LR
@@ -103,6 +106,7 @@ TLS включён даже в локальной разработке. Traefik 
 │   ├── clickhouse.env
 │   ├── frontend.env
 │   ├── kratos.env
+│   ├── oathkeeper.env
 │   ├── otel-collector.env
 │   ├── postgres.env
 │   ├── signoz.env
@@ -133,13 +137,21 @@ TLS включён даже в локальной разработке. Traefik 
 │   ├── kratos.yaml                 # password + code, OTel tracing
 │   └── identity.schema.json        # email-based identity
 │
+├── oathkeeper/                     # Ory Oathkeeper — access proxy
+│   ├── Dockerfile                  # COPY --from бинарника
+│   ├── compose.yaml
+│   ├── entrypoint.sh               # сборка URL Kratos из env
+│   ├── oathkeeper.yaml             # конфигурация API и OTel
+│   └── rules.yaml                  # правила доступа (allow/deny)
+│
 ├── traefik/                        # Reverse proxy + TLS + HTTP/3
 │   ├── Dockerfile                  # envsubst для шаблонизации
 │   ├── entrypoint.sh               # envsubst < template.yml > traefik.yml
 │   ├── template.yml                # статическая конфигурация (шаблон)
 │   └── dynamic/                    # динамическая конфигурация
-│       ├── frontend.yml            # /* → frontend (priority 1)
-│       └── ory-kratos.yaml         # /auth/* → kratos (priority 2)
+│       ├── frontend.yml            # /* → frontend (с forwardAuth)
+│       ├── oathkeeper.yml          # middleware oathkeeper-auth
+│       └── ory-kratos.yaml         # /auth/* → kratos
 │
 ├── otel-collectors/                # OpenTelemetry коллекторы
 │   ├── Dockerfile                  # SigNoz OTel Collector + healthcheck
@@ -202,6 +214,7 @@ Edge-коллекторы пересылают данные в `otel-services` �
 ├── traefik.env         # DOMAIN, PORT
 ├── frontend.env        # FRONTEND_HOST, FRONTEND_PORT
 ├── kratos.env          # KRATOS_HOST, порты, KRATOS_DB
+├── oathkeeper.env      # OATHKEEPER_HOST, порты
 ├── postgres.env        # POSTGRES_HOST, порт, логин, пароль
 ├── clickhouse.env      # CLICKHOUSE_HOST, порт, логин, пароль
 ├── otel-collector.env  # OTEL_COLLECTOR_HOST, порты (gRPC/HTTP)
