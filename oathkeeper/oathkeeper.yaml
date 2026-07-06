@@ -4,8 +4,6 @@ errors:
   handlers:
     json:
       enabled: true
-      config:
-        verbose: true
 
 access_rules:
   matching_strategy: regexp
@@ -24,8 +22,7 @@ authenticators:
       preserve_query: true
       extra_from: "@this"
       subject_from: identity.id
-      only:
-        - ory_kratos_session
+
   bearer_token:
     enabled: true
     config:
