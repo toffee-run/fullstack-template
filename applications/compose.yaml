@@ -1,0 +1,4 @@
+include:
+  - backend/compose.yaml
+  - frontend/compose.yaml
+  - management/compose.yaml

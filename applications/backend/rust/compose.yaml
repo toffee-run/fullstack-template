@@ -1,0 +1,4 @@
+include:
+  - interface/compose.yaml
+  - schaduler/compose.yaml
+  - worker/compose.yaml
