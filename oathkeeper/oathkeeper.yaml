@@ -14,7 +14,8 @@ authenticators:
   anonymous:
     enabled: true
     config:
-      subject: anonymous
+      subject: guest
+
   cookie_session:
     enabled: true
     config:
@@ -36,12 +37,11 @@ authorizers:
     enabled: true
 
 mutators:
-  noop:
-    enabled: true
   header:
     enabled: true
     config:
       headers:
+        X-User-ID: "{{ print .Subject }}"
         X-User-Session: "{{ toJson .Extra }}"
 
 tracing:

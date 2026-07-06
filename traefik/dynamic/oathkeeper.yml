@@ -8,4 +8,5 @@ http:
           - Cookie
           - Authorization
         authResponseHeaders:
+          - X-User-ID
           - X-User-Session
