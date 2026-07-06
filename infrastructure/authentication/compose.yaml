@@ -1,0 +1,8 @@
+include:
+  - kratos/compose.yaml
+  - oathkeeper/compose.yaml
+
+services:
+  oathkeeper:
+    depends_on:
+      kratos: { condition: service_healthy }
