@@ -1,267 +1,68 @@
-# FullStack Template
+# Fullstack Шаблон
+--------------------
 
-Production-ready шаблон полнофункционального веб-приложения с встроенной аутентификацией и наблюдаемостью (observability). Одна команда — полностью рабочее окружение.
+Комплексный, готовый к продакшену fullstack-шаблон на базе Docker Compose. Этот шаблон разработан для создания надежной основы при разработке масштабируемых приложений со встроенным управлением идентификацией, маршрутизацией и инструментами наблюдаемости (observability).
 
-```
-docker compose up --build
-```
+## 🏗️ Архитектура
 
-| Сервис     | URL                          |
-| ---------- | ---------------------------- |
-| Приложение | https://localhost:4443       |
-| SigNoz     | http://localhost:8080        |
-| Mailpit    | http://localhost:8025        |
+Проект разделен на три основных уровня:
 
-## Стек
+- **`applications/`**: Содержит исходный код ваших приложений (frontend, backend, management).
+- **`infrastructure/`**: Базовые сервисы, необходимые для работы приложения (аутентификация, шлюзы, наблюдаемость, базы данных).
+- **`environments/`**: Специфичные для среды конфигурации и переменные для всех сервисов.
 
-| Слой               | Технология                                                       |
-| ------------------- | ---------------------------------------------------------------- |
-| Frontend            | React 19 · TanStack Start · Nitro · Vite                        |
-| Аутентификация      | Ory Kratos · Ory Oathkeeper                                      |
-| База данных         | PostgreSQL                                                       |
-| Reverse Proxy       | Traefik (HTTPS + HTTP/3)                                         |
-| Observability       | OpenTelemetry · SigNoz · ClickHouse                              |
-| Email (dev)         | Mailpit                                                          |
+### Основные сервисы
 
-## Архитектура
+Этот шаблон "из коробки" включает следующие компоненты инфраструктуры:
 
-```mermaid
-graph TD
-    User["Пользователь"] -->|":80 → :4443"| Traefik
+* **Маршрутизация и API-шлюз**: [Traefik](https://traefik.io/) & [Ory Oathkeeper](https://www.ory.sh/oathkeeper/)
+* **Идентификация и аутентификация**: [Ory Kratos](https://www.ory.sh/kratos/)
+* **Наблюдаемость (Observability & APM)**: [SigNoz](https://signoz.io/) & OpenTelemetry Collectors (master, host, integrations)
+* **Базы данных**: [PostgreSQL](https://www.postgresql.org/) & [ClickHouse](https://clickhouse.com/)
+* **Почтовый сервер**: Локальный SMTP для разработки
 
-    subgraph Traefik["Traefik (HTTPS + HTTP/3)"]
-        direction LR
-        AuthRoute["/auth/*"]
-        AppRoute["/*"]
-    end
+## 🚀 Быстрый старт
 
-    AuthRoute -->|stripPrefix| Kratos
-    AppRoute -.->|1. forwardAuth| Oathkeeper
-    Oathkeeper -.->|2. check session| Kratos
-    AppRoute -->|3. proxy (X-User-ID)| Frontend
+### Требования
 
-    Kratos --> PostgreSQL
-    Kratos -->|SMTP| Mailpit
+* Docker
+* Docker Compose
 
-    Traefik -->|push OTLP| OtelServices
-    Frontend -->|push OTLP| OtelServices
-    Kratos -->|push OTLP| OtelServices
-    Oathkeeper -->|push OTLP| OtelServices
+### Запуск проекта
 
-    subgraph OtelServices["otel-services (gateway)"]
-        direction LR
-        Traces["Traces"]
-        Logs["Logs"]
-        Metrics["Metrics"]
-    end
+Чтобы запустить все сервисы, просто выполните команду:
 
-    OtelServices --> ClickHouse
-    ClickHouse --> SigNoz["SigNoz (UI)"]
-
-    OtelHost["otel-host (root)"] -->|push OTLP| OtelServices
-    OtelInt["otel-integrations"] -->|push OTLP| OtelServices
-
-    OtelHost -.-|scrape| HostFS["/hostfs + docker.sock"]
-    OtelInt -.-|scrape| ClickHouse
-    OtelInt -.-|scrape| Kratos
-    OtelInt -.-|scrape| PostgreSQL
+```bash
+docker compose up -d
 ```
 
-Все сервисы размещены за **единым origin** (`localhost:4443`), что устраняет cross-origin сложности с cookies.
+### Доступ к сервисам
 
-## Принципы
+После запуска проекта вы сможете получить доступ к сервисам по следующим портам (по умолчанию):
 
-### Zero-touch startup
+* **Приложение / Шлюз Traefik**: `http://localhost:8000` (HTTPS: `4443`)
+* **SigNoz (Дашборд наблюдаемости)**: `http://localhost:8080`
+* **Локальный почтовый сервер**: `http://localhost:8025`
 
-`docker compose up --build` — единственная команда. Миграции, регистрация пользователей, импорт дашбордов — всё происходит автоматически через init-сервисы.
+## 📁 Структура проекта
 
-### Атомарные env-переменные
-
-Env-файлы в `.env/` хранят только атомарные значения (host, port, user, password). Составные значения (DSN, URL) собираются в entrypoint-скриптах каждого сервиса. Это исключает дублирование и рассинхронизацию.
-
-### Модульность
-
-Каждый компонент — самодостаточная директория со своим `compose.yaml`, `Dockerfile` и конфигурацией. Корневой `docker-compose.yaml` лишь подключает модули через `include:`.
-
-### Наблюдаемость из коробки
-
-Телеметрия (логи, трейсы, метрики) настроена для всех компонентов — от приложения до инфраструктуры. После старта в SigNoz доступны 7 готовых дашбордов.
-
-### Минимальные привилегии
-
-Каждый сервис получает через `env_file` только те переменные, которые ему необходимы. OTel-коллекторы разделены по уровню привилегий.
-
-### HTTPS в dev = HTTPS в prod
-
-TLS включён даже в локальной разработке. Traefik генерирует самоподписанный сертификат для dev, при деплое подключается ACME.
-
-## Структура
-
-```
+```text
 .
-├── docker-compose.yaml             # include всех модулей
-├── docker-compose.override.yaml    # env-файлы, depends_on, restart policy
-│
-├── .env/                           # атомарные env-переменные
-│   ├── clickhouse.env
-│   ├── frontend.env
-│   ├── kratos.env
-│   ├── oathkeeper.env
-│   ├── otel-collector.env
-│   ├── postgres.env
-│   ├── signoz.env
-│   ├── smtp.env
-│   └── traefik.env
-│
-├── frontend/                       # React 19 + TanStack Start + Nitro
-│   ├── Dockerfile                  # multi-stage: builder → production
-│   ├── instrumentation.ts          # OpenTelemetry SDK (gRPC)
-│   ├── nitro.config.ts             # OTel как Nitro plugin
-│   ├── vite.config.ts
-│   └── src/
-│       ├── logger.ts               # Pino: pretty + OTel transport
-│       ├── router.tsx
-│       └── routes/
-│           ├── __root.tsx           # HTML shell
-│           ├── index.tsx            # главная страница
-│           ├── health.ts            # server-only healthcheck
-│           ├── login.tsx            # ┐
-│           ├── registration.tsx     # │ Kratos self-service UI
-│           ├── recovery.tsx         # │ (flow-based rendering)
-│           ├── verification.tsx     # │
-│           └── settings.tsx         # ┘
-│
-├── kratos/                         # Ory Kratos — аутентификация
-│   ├── Dockerfile                  # COPY --from бинарника
-│   ├── entrypoint.sh               # сборка DSN, URL из env
-│   ├── kratos.yaml                 # password + code, OTel tracing
-│   └── identity.schema.json        # email-based identity
-│
-├── oathkeeper/                     # Ory Oathkeeper — access proxy
-│   ├── Dockerfile                  # COPY --from бинарника
-│   ├── compose.yaml
-│   ├── entrypoint.sh               # сборка URL Kratos из env
-│   ├── oathkeeper.yaml             # конфигурация API и OTel
-│   └── rules.yaml                  # правила доступа (allow/deny)
-│
-├── traefik/                        # Reverse proxy + TLS + HTTP/3
-│   ├── Dockerfile                  # envsubst для шаблонизации
-│   ├── entrypoint.sh               # envsubst < template.yml > traefik.yml
-│   ├── template.yml                # статическая конфигурация (шаблон)
-│   └── dynamic/                    # динамическая конфигурация
-│       ├── frontend.yml            # /* → frontend (с forwardAuth)
-│       ├── oathkeeper.yml          # middleware oathkeeper-auth
-│       └── ory-kratos.yaml         # /auth/* → kratos
-│
-├── otel-collectors/                # OpenTelemetry коллекторы
-│   ├── Dockerfile                  # SigNoz OTel Collector + healthcheck
-│   ├── entrypoint.sh               # сборка ClickHouse DSN
-│   ├── compose.yaml                # otel-services, otel-host, otel-integrations, otel-migrator
-│   ├── services.yaml               # gateway: OTLP → ClickHouse (traces, logs, metrics)
-│   ├── host.yaml                   # edge: hostmetrics + docker_stats → gateway
-│   └── integrations.yaml           # edge: prometheus scrape + postgresql → gateway
-│
-├── clickhouse/                     # ClickHouse — хранилище телеметрии
-│   ├── Dockerfile                  # + SigNoz histogramQuantile UDF
-│   ├── compose.yaml
-│   ├── cluster.xml                 # ClickHouse Keeper (single-node)
-│   ├── prometheus.xml              # Prometheus endpoint для мониторинга
-│   └── histogramQuantile.xml       # UDF для расчёта перцентилей
-│
-├── postgres/                       # PostgreSQL — БД для Kratos
-│   ├── Dockerfile                  # + кастомный healthcheck
-│   ├── compose.yaml
-│   ├── init.sh                     # CREATE DATABASE + GRANT pg_monitor
-│   └── healthcheck.sh              # SELECT 1 (строже чем pg_isready)
-│
-└── signoz/                         # SigNoz — UI для observability
-    ├── Dockerfile                  # + healthcheck + entrypoint
-    ├── compose.yaml                # + signoz-bootstrap (python)
-    ├── entrypoint.sh               # сборка ClickHouse DSN
-    ├── bootstrap.py                # авто-регистрация, импорт дашбордов
-    └── dashboards/                 # 7 готовых дашбордов
-        ├── apm_metrics.json
-        ├── clickhouse_overview.json
-        ├── container_metrics.json
-        ├── db_calls_monitoring.json
-        ├── host_metrics.json
-        ├── http_api_monitoring.json
-        └── postgres_overview.json
+├── applications/
+│   ├── backend/
+│   ├── frontend/
+│   └── management/
+├── infrastructure/
+│   ├── authentication/ # Ory Kratos & Oathkeeper
+│   ├── gateways/       # Конфигурация Traefik
+│   ├── observability/  # SigNoz и OpenTelemetry
+│   ├── storages/       # Postgres и ClickHouse
+│   └── other/          # Почтовый сервер и т.д.
+├── environments/       # Переменные окружения (.env файлы)
+├── docker-compose.yaml # Основной файл compose
+└── docker-compose.override.yaml
 ```
 
-## OTel-коллекторы
+## 🛠️ Конфигурация
 
-Три коллектора разделены по профилю привилегий и модели сбора:
-
-| Коллектор          | Модель | Образ                           | Привилегии            | Назначение                                         |
-| ------------------ | ------ | ------------------------------- | --------------------- | -------------------------------------------------- |
-| `otel-services`    | push   | signoz/signoz-otel-collector    | user 1001             | Gateway: приём OTLP, запись в ClickHouse            |
-| `otel-host`        | pull   | otel/opentelemetry-collector-contrib | root (0:0), /hostfs   | Edge: метрики хоста + Docker                        |
-| `otel-integrations`| pull   | otel/opentelemetry-collector-contrib | обычный               | Edge: scrape ClickHouse, Kratos, PostgreSQL          |
-
-Push-модель используется для контролируемого кода (frontend, Traefik) — приложения сами отправляют телеметрию через OTLP SDK. Подключение через pull (например, прокидывание лог-файлов) увеличивало бы связанность модулей шаблона.
-
-Edge-коллекторы пересылают данные в `otel-services` через OTLP, образуя **fan-in** топологию.
-
-## Конфигурация
-
-### Env-файлы
-
-Переменные сгруппированы по сервису-владельцу в `.env/`:
-
-```
-.env/
-├── traefik.env         # DOMAIN, PORT
-├── frontend.env        # FRONTEND_HOST, FRONTEND_PORT
-├── kratos.env          # KRATOS_HOST, порты, KRATOS_DB
-├── oathkeeper.env      # OATHKEEPER_HOST, порты
-├── postgres.env        # POSTGRES_HOST, порт, логин, пароль
-├── clickhouse.env      # CLICKHOUSE_HOST, порт, логин, пароль
-├── otel-collector.env  # OTEL_COLLECTOR_HOST, порты (gRPC/HTTP)
-├── signoz.env          # SIGNOZ_HOST, порт, root-пользователь
-└── smtp.env            # SMTP_HOST, SMTP_PORT
-```
-
-Секреты для production размещаются в `*.secret.env` (добавлены в `.gitignore`).
-
-### Entrypoint-паттерн
-
-Каждый сервис, которому нужны составные значения (DSN, URL), собирает их из атомарных переменных в entrypoint-скрипте:
-
-```sh
-# kratos/entrypoint.sh
-export DSN=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$KRATOS_DB
-export SERVE_PUBLIC_BASE_URL=https://$DOMAIN:$PORT/auth
-exec "$@"
-```
-
-### Добавление нового сервиса
-
-1. Создать директорию с `Dockerfile`, `compose.yaml` и конфигурацией
-2. Встроить `HEALTHCHECK` в Dockerfile
-3. Добавить entrypoint-скрипт, если нужны составные env-переменные
-4. Добавить `include:` в `docker-compose.yaml`
-5. Добавить `env_file` и `depends_on` в `docker-compose.override.yaml`
-6. Настроить роутинг в `traefik/dynamic/`
-
-### Добавление нового маршрута в Traefik
-
-Создать файл в `traefik/dynamic/`:
-
-```yaml
-http:
-  routers:
-    my-service:
-      entryPoints: [websecure]
-      rule: "PathPrefix(`/api`)"
-      priority: 3
-      service: my-service
-      tls: {}
-  services:
-    my-service:
-      loadBalancer:
-        servers:
-          - url: 'http://{{ env "MY_SERVICE_HOST" }}:{{ env "MY_SERVICE_PORT" }}'
-```
-
-Traefik подхватит файл автоматически (`watch: true`).
+Конфигурации сервисов управляются через `.env` файлы, расположенные в директории `environments/`. Каждый крупный компонент имеет свой собственный файл окружения (например, `postgres.env`, `kratos.env`, `signoz.env`). Изменяйте эти файлы для настройки учетных данных, портов или специфических параметров приложения.

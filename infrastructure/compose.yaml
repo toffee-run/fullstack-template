@@ -1,0 +1,58 @@
+include:
+  - authentication/compose.yaml
+  - gateways/compose.yaml
+  - observability/compose.yaml
+  - other/compose.yaml
+  - storages/compose.yaml
+
+x-depend_on-kratos: &depend_on-kratos
+  kratos: { condition: service_healthy }
+
+x-depend_on-oathkeeper: &depend_on-oathkeeper
+  oathkeeper: { condition: service_healthy }
+
+x-depend_on-master-collector: &depend_on-master-collector
+  master-collector: { condition: service_healthy }
+
+x-depend_on-clickhouse: &depend_on-clickhouse
+  clickhouse: { condition: service_healthy }
+
+x-depend_on-postgres: &depend_on-postgres
+  postgres: { condition: service_healthy }
+
+services:
+  kratos:
+    depends_on:
+      <<:
+        - *depend_on-master-collector
+        - *depend_on-postgres
+      mail_server: { condition: service_healthy }
+  oathkeeper:
+    depends_on:
+      <<:
+        - *depend_on-master-collector
+  traefik:
+    depends_on:
+      <<:
+        - *depend_on-kratos
+        - *depend_on-oathkeeper
+        - *depend_on-master-collector
+  integrations-collector:
+    depends_on:
+      <<:
+        - *depend_on-kratos
+        - *depend_on-oathkeeper
+        - *depend_on-clickhouse
+        - *depend_on-postgres
+  collector_migrator:
+    depends_on:
+      <<:
+        - *depend_on-clickhouse
+  master-collector:
+    depends_on:
+      <<:
+        - *depend_on-clickhouse
+  signoz:
+    depends_on:
+      <<:
+        - *depend_on-clickhouse
