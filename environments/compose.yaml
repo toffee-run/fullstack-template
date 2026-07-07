@@ -2,6 +2,10 @@ services:
   python-interface:
     env_file:
       - python-interface.env
+  frontend:
+    env_file:
+      - frontend.env
+      - python-interface.env
   kratos:
     env_file:
       - postgres.env
