@@ -3,7 +3,7 @@ include:
   - gateways/compose.yaml
   - observability/compose.yaml
   - other/compose.yaml
-  - storages/compose.yaml
+  - statefull/compose.yaml
 
 x-depend_on-kratos: &depend_on-kratos
   kratos: { condition: service_healthy }

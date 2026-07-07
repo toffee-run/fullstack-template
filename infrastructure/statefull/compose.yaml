@@ -3,4 +3,5 @@ include:
   - meilisearch/compose.yaml
   - postgres/compose.yaml
   - redis/compose.yaml
+  - redpanda/compose.yaml
   - seaweedfs/compose.yaml

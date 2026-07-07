@@ -21,6 +21,11 @@ services:
   frontend:
     <<: *restart
     depends_on:
+      python-interface: { condition: service_healthy }
+      master-collector: { condition: service_healthy }
+  python-interface:
+    <<: *restart
+    depends_on:
       master-collector: { condition: service_healthy }
   kratos:
     <<: *restart
