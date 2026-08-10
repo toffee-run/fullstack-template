@@ -9,7 +9,7 @@ import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-grpc";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 
-const host = process.env.MASTER_COLLECTOR_HOST || "frontend";
+const host = process.env.MASTER_COLLECTOR_HOST || "master-collector";
 const port = process.env.MASTER_COLLECTOR_GRPC || "4317";
 
 const exporterConfig = {
